@@ -91,7 +91,6 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
     _priceController.dispose();
     _stockController.dispose();
     _categoryController.dispose();
-    _categoryController.dispose();
     _imageUrlController.dispose();
     _isLoading.dispose();
     super.dispose();
@@ -116,6 +115,44 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
     }
   }
 
+  InputDecoration _buildInputDecoration(BuildContext context, String label, String hint, IconData icon, {Widget? suffixIcon}) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      suffixIcon: suffixIcon,
+      prefixIcon: Padding(
+        padding: const EdgeInsets.only(left: 12, top: 8, bottom: 8, right: 12),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.primary,
+            size: 20,
+          ),
+        ),
+      ),
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.productId != null;
@@ -128,8 +165,43 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
         }
 
         return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
-            title: Text(isEditing ? 'Edit Product' : 'Add Product'),
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            elevation: 0,
+            title: Text(
+              isEditing ? 'Edit Product' : 'Add Product',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.chevron_left, color: Theme.of(context).colorScheme.primary),
+                  onPressed: () => context.pop(),
+                ),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.primary),
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
           body: BlocConsumer<ProductFormBloc, ProductFormState>(
             listener: (context, state) {
@@ -152,72 +224,174 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/images/inventory.png',
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                    ),
-                  ).animate().fade(duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
-                  const SizedBox(height: 24),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Product Name', hintText: 'e.g. Wireless Mouse'),
-                    validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(labelText: 'Category', hintText: 'e.g. Electronics'),
-                    validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
                     children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _priceController,
-                          decoration: const InputDecoration(labelText: 'Price (\$)'),
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
-                          validator: (val) => val == null || double.tryParse(val) == null ? 'Invalid price' : null,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/images/inventory.png',
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+                        ),
+                      ).animate().fade(duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(width: 16, height: 6, decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(3))),
+                          const SizedBox(width: 6),
+                          Container(width: 6, height: 6, decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), shape: BoxShape.circle)),
+                          const SizedBox(width: 6),
+                          Container(width: 6, height: 6, decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), shape: BoxShape.circle)),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: _buildInputDecoration(context, 'Product Name', 'Enter product name', Icons.local_offer_outlined),
+                              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _categoryController,
+                              decoration: _buildInputDecoration(
+                                context, 
+                                'Category', 
+                                'Select category', 
+                                Icons.grid_view_rounded,
+                                suffixIcon: Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _priceController,
+                                    decoration: _buildInputDecoration(context, 'Price (\$)', '0.00', Icons.monetization_on_outlined),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    validator: (val) => val == null || double.tryParse(val) == null ? 'Invalid price' : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _stockController,
+                                    decoration: _buildInputDecoration(context, 'Stock', '0', Icons.inventory_2_outlined),
+                                    keyboardType: TextInputType.number,
+                                    validator: (val) => val == null || int.tryParse(val) == null ? 'Invalid stock' : null,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _descController,
+                              decoration: _buildInputDecoration(context, 'Description', 'Enter product description...', Icons.description_outlined).copyWith(
+                                alignLabelWithHint: true,
+                              ),
+                              maxLines: 3,
+                              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: _imageUrlController,
+                              decoration: _buildInputDecoration(
+                                context, 
+                                'Image URL (optional)', 
+                                'https://example.com/image.jpg', 
+                                Icons.image_outlined,
+                                suffixIcon: Icon(Icons.cloud_upload_outlined, color: Theme.of(context).colorScheme.primary),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            PremiumButton(
+                              label: isEditing ? 'Save Changes' : 'Add Product',
+                              onPressed: _submit,
+                              isLoading: state.status == ProductFormStatus.loading,
+                              icon: isEditing ? Icons.save_outlined : Icons.add_circle_outline_rounded,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _stockController,
-                          decoration: const InputDecoration(labelText: 'Stock'),
-                          keyboardType: TextInputType.number,
-                          validator: (val) => val == null || int.tryParse(val) == null ? 'Invalid stock' : null,
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.lightbulb_outline, color: Theme.of(context).colorScheme.primary),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tips',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Add high quality images and accurate details for better inventory tracking.',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.stars_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 48,
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 32),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    maxLines: 3,
-                    validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: const InputDecoration(labelText: 'Image URL (optional)'),
-                  ),
-                  const SizedBox(height: 32),
-                  PremiumButton(
-                    label: isEditing ? 'Save Changes' : 'Add Product',
-                    onPressed: _submit,
-                    isLoading: state.status == ProductFormStatus.loading,
-                    icon: isEditing ? Icons.save_outlined : Icons.add_circle_outline_rounded,
-                  ),
-                ],
-              ),
-            ),
-          );
+                ),
+              );
             },
           ),
         );

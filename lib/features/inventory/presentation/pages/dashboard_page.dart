@@ -14,6 +14,7 @@ import 'package:product_inventory/core/widgets/premium_card.dart';
 import 'package:product_inventory/core/widgets/premium_icon_button.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_event.dart';
+import 'package:product_inventory/features/inventory/domain/entities/product.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_state.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -25,6 +26,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ValueNotifier<String> _selectedFilterNotifier = ValueNotifier<String>('This Month');
+
+  @override
+  void dispose() {
+    _selectedFilterNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -54,10 +62,16 @@ class _DashboardPageState extends State<DashboardPage> {
               SizedBox(height: 24),
               HeroCarousel(),
               SizedBox(height: 32),
-              _buildSectionHeader('Overview', 'This Month'),
-              SizedBox(height: 16),
-              BlocBuilder<InventoryBloc, InventoryState>(
-                builder: (context, state) {
+              ValueListenableBuilder<String>(
+                valueListenable: _selectedFilterNotifier,
+                builder: (context, filter, child) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionHeader('Overview', filter),
+                      SizedBox(height: 16),
+                      BlocBuilder<InventoryBloc, InventoryState>(
+                        builder: (context, state) {
                   if (state.status == InventoryStatus.loading &&
                       state.products.isEmpty) {
                     return Center(
@@ -77,12 +91,26 @@ class _DashboardPageState extends State<DashboardPage> {
                     );
                   }
 
-                  final totalProducts = state.products.length;
-                  final totalValue = state.products.fold<double>(
+                  final now = DateTime.now();
+                  List<Product> filteredProducts = state.products;
+                  if (filter == 'This Month') {
+                    filteredProducts = state.products.where((p) {
+                      if (p.addedOn == null) return false;
+                      return p.addedOn!.year == now.year && p.addedOn!.month == now.month;
+                    }).toList();
+                  } else if (filter == 'This Year') {
+                    filteredProducts = state.products.where((p) {
+                      if (p.addedOn == null) return false;
+                      return p.addedOn!.year == now.year;
+                    }).toList();
+                  }
+
+                  final totalProducts = filteredProducts.length;
+                  final totalValue = filteredProducts.fold<double>(
                     0,
                     (sum, item) => sum + (item.price * item.stock),
                   );
-                  final lowStockItems = state.products
+                  final lowStockItems = filteredProducts
                       .where((p) => p.stock < 20)
                       .length;
 
@@ -130,14 +158,18 @@ class _DashboardPageState extends State<DashboardPage> {
                         'View Report >',
                       ),
                       SizedBox(height: 24),
-                      _buildCategoryChart(state),
+                      _buildCategoryChart(filteredProducts),
                       SizedBox(height: 20),
                     ],
                   );
                 },
               ),
             ],
-          ),
+          );
+        },
+      ),
+    ],
+  ),
         ),
       ),
     );
@@ -371,7 +403,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 if (actionText.contains('View Report')) {
                   context.go('/products');
                 } else {
-                  AppSnackBar.showInfo(context, 'Date filter coming soon!');
+                  _showFilterBottomSheet();
                 }
               },
               borderRadius: BorderRadius.circular(12),
@@ -408,6 +440,50 @@ class _DashboardPageState extends State<DashboardPage> {
         .animate()
         .fade(delay: 100.ms, duration: 400.ms)
         .slideY(begin: 0.1, end: 0);
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ['All Time', 'This Year', 'This Month'].map((f) {
+                return ListTile(
+                  title: Text(
+                    f,
+                    style: TextStyle(
+                      fontWeight: _selectedFilterNotifier.value == f
+                          ? FontWeight.w800
+                          : FontWeight.w500,
+                      color: _selectedFilterNotifier.value == f
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  trailing: _selectedFilterNotifier.value == f
+                      ? Icon(
+                        Icons.check_circle_rounded,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                      : null,
+                  onTap: () {
+                    _selectedFilterNotifier.value = f;
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildMiniKpiCard(
@@ -698,9 +774,9 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildCategoryChart(InventoryState state) {
+  Widget _buildCategoryChart(List<Product> products) {
     final Map<String, int> categoryCounts = {};
-    for (var p in state.products) {
+    for (var p in products) {
       categoryCounts[p.category] = (categoryCounts[p.category] ?? 0) + p.stock;
     }
     if (categoryCounts.isEmpty) return SizedBox.shrink();
