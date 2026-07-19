@@ -21,15 +21,41 @@ class _ProductListPageState extends State<ProductListPage> {
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
   Timer? _debounce;
+  String? _timeFilter;
+  bool _hasLoadedInitialData = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    context.read<InventoryBloc>().add(LoadCategoriesEvent());
-    context.read<InventoryBloc>().add(
-      const LoadInventoryEvent(isRefresh: true),
-    );
+  }
+
+  String? _getTimeFilterFromExtra() {
+    final extra = GoRouterState.of(context).extra;
+    if (extra is Map<String, dynamic>) {
+      return extra['timeFilter'] as String?;
+    }
+    return null;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final nextTimeFilter = _getTimeFilterFromExtra();
+
+    if (_hasLoadedInitialData && nextTimeFilter == _timeFilter) {
+      return;
+    }
+
+    _timeFilter = nextTimeFilter;
+    final bloc = context.read<InventoryBloc>();
+
+    if (!_hasLoadedInitialData) {
+      bloc.add(LoadCategoriesEvent());
+      _hasLoadedInitialData = true;
+    }
+
+    bloc.add(LoadInventoryEvent(isRefresh: true, timeFilter: _timeFilter));
   }
 
   @override
@@ -42,7 +68,9 @@ class _ProductListPageState extends State<ProductListPage> {
 
   void _onScroll() {
     if (_isBottom) {
-      context.read<InventoryBloc>().add(const LoadInventoryEvent());
+      context.read<InventoryBloc>().add(
+        LoadInventoryEvent(timeFilter: _timeFilter),
+      );
     }
   }
 
@@ -61,6 +89,7 @@ class _ProductListPageState extends State<ProductListPage> {
           query: query,
           isRefresh: true,
           category: context.read<InventoryBloc>().state.currentCategory,
+          timeFilter: _timeFilter,
         ),
       );
     });
@@ -72,6 +101,7 @@ class _ProductListPageState extends State<ProductListPage> {
         category: category,
         query: _searchController.text,
         isRefresh: true,
+        timeFilter: _timeFilter,
       ),
     );
   }
@@ -98,6 +128,7 @@ class _ProductListPageState extends State<ProductListPage> {
                   isRefresh: true,
                   query: _searchController.text,
                   category: context.read<InventoryBloc>().state.currentCategory,
+                  timeFilter: _timeFilter,
                 ),
               );
             },
@@ -121,49 +152,85 @@ class _ProductListPageState extends State<ProductListPage> {
   Widget _buildHeader(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Inventory',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Inventory',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'Manage all your products easily',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 4),
-              Text(
-                'Manage all your products easily',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+              InkWell(
+                onTap: () => context.push('/products/add'),
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    Icons.add_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 24,
+                  ),
                 ),
               ),
             ],
           ),
-          InkWell(
-            onTap: () => context.push('/products/add'),
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              padding: const EdgeInsets.all(12),
+          if (_timeFilter != null) ...[
+            SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Theme.of(
                   context,
-                ).colorScheme.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
+                ).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(999),
               ),
-              child: Icon(
-                Icons.add_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.filter_alt_rounded,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    'Filtered: ${_timeFilter!.replaceAll('_', ' ')}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -410,6 +477,7 @@ class _ProductListPageState extends State<ProductListPage> {
                               isRefresh: true,
                               sortBy: currentSortBy.value,
                               lowStockOnly: currentLowStockOnly.value,
+                              timeFilter: _timeFilter,
                             ),
                           );
                         },
@@ -484,76 +552,75 @@ class _ProductListPageState extends State<ProductListPage> {
       builder: (context, state) {
         if (state.categories.isEmpty) return const SizedBox.shrink();
         return SizedBox(
-          height: 50,
-          child: ListView.builder(
+          height: 64,
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             itemCount: state.categories.length + 1,
+            separatorBuilder: (context, index) => const SizedBox(width: 10),
             itemBuilder: (context, index) {
               final isAll = index == 0;
               final category = isAll ? null : state.categories[index - 1];
               final isSelected = state.currentCategory == category;
-              final categoryName = isAll ? 'All' : category!;
+              final categoryName = isAll ? 'All' : category!.trim();
+              final colorScheme = Theme.of(context).colorScheme;
+              final icon = _categoryIconFor(categoryName);
+              final foregroundColor = isSelected
+                  ? colorScheme.onPrimary
+                  : colorScheme.onSurface;
 
-              IconData icon;
-              if (isAll) {
-                icon = Icons.grid_view_rounded;
-              } else {
-                switch (categoryName.toLowerCase()) {
-                  case 'electronics':
-                    icon = Icons.computer_rounded;
-                    break;
-                  case 'furniture':
-                    icon = Icons.chair_rounded;
-                    break;
-                  case 'home':
-                    icon = Icons.home_rounded;
-                    break;
-                  case 'office':
-                    icon = Icons.business_center_rounded;
-                    break;
-                  default:
-                    icon = Icons.folder_outlined;
-                }
-              }
-
-              return Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: GestureDetector(
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
                   onTap: () => _onCategorySelected(category),
+                  borderRadius: BorderRadius.circular(999),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    constraints: const BoxConstraints(
+                      minHeight: 44,
+                      maxWidth: 168,
                     ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.transparent,
+                          ? colorScheme.primary
+                          : colorScheme.surface,
                       borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.outlineVariant.withValues(
+                                alpha: 0.75,
+                              ),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withValues(
+                            alpha: isSelected ? 0.12 : 0.05,
+                          ),
+                          blurRadius: isSelected ? 14 : 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          icon,
-                          size: 16,
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
+                        Icon(icon, size: 17, color: foregroundColor),
                         const SizedBox(width: 8),
-                        Text(
-                          categoryName,
-                          style: TextStyle(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.onSurface,
-                            fontSize: 13,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w600,
+                        Flexible(
+                          child: Text(
+                            categoryName.isEmpty ? 'Untitled' : categoryName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: foregroundColor,
+                              fontSize: 13,
+                              fontWeight: isSelected
+                                  ? FontWeight.w800
+                                  : FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -566,6 +633,26 @@ class _ProductListPageState extends State<ProductListPage> {
         );
       },
     );
+  }
+
+  IconData _categoryIconFor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'all':
+        return Icons.grid_view_rounded;
+      case 'electronics':
+      case 'electronic':
+        return Icons.computer_rounded;
+      case 'furniture':
+        return Icons.chair_rounded;
+      case 'home':
+        return Icons.home_rounded;
+      case 'office':
+        return Icons.business_center_rounded;
+      case 'stationery':
+        return Icons.edit_note_rounded;
+      default:
+        return Icons.folder_rounded;
+    }
   }
 
   Widget _buildSliverProductList() {

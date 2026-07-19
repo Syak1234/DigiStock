@@ -14,6 +14,7 @@ class LoadInventoryEvent extends InventoryEvent {
   final String? sortBy;
   final bool? lowStockOnly;
   final bool isRefresh;
+  final String? timeFilter;
 
   const LoadInventoryEvent({
     this.page = 1,
@@ -22,10 +23,11 @@ class LoadInventoryEvent extends InventoryEvent {
     this.sortBy,
     this.lowStockOnly,
     this.isRefresh = false,
+    this.timeFilter,
   });
 
   @override
-  List<Object?> get props => [page, query, category, sortBy, lowStockOnly, isRefresh];
+  List<Object?> get props => [page, query, category, sortBy, lowStockOnly, isRefresh, timeFilter];
 }
 
 class LoadCategoriesEvent extends InventoryEvent {}

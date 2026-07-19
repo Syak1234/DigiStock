@@ -26,7 +26,9 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final ValueNotifier<String> _selectedFilterNotifier = ValueNotifier<String>('This Month');
+  final ValueNotifier<String> _selectedFilterNotifier = ValueNotifier<String>(
+    'This Month',
+  );
 
   @override
   void dispose() {
@@ -52,9 +54,7 @@ class _DashboardPageState extends State<DashboardPage> {
           context.read<InventoryBloc>().add(
             LoadInventoryEvent(isRefresh: true),
           );
-          context.read<InventoryBloc>().add(
-            LoadDashboardDataEvent(),
-          );
+          context.read<InventoryBloc>().add(LoadDashboardDataEvent());
         },
         child: SingleChildScrollView(
           padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 10),
@@ -64,7 +64,18 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               _buildHeader(),
               SizedBox(height: 24),
-              HeroCarousel(),
+              HeroCarousel(
+                onViewAnalytics: () {
+                  final filter = _selectedFilterNotifier.value;
+                  String? timeFilter;
+                  if (filter == 'This Month') {
+                    timeFilter = 'this_month';
+                  } else if (filter == 'This Year') {
+                    timeFilter = 'this_year';
+                  }
+                  context.go('/products', extra: {'timeFilter': timeFilter});
+                },
+              ),
               SizedBox(height: 32),
               ValueListenableBuilder<String>(
                 valueListenable: _selectedFilterNotifier,
@@ -76,104 +87,105 @@ class _DashboardPageState extends State<DashboardPage> {
                       SizedBox(height: 16),
                       BlocBuilder<InventoryBloc, InventoryState>(
                         builder: (context, state) {
-                  if (state.status == InventoryStatus.loading &&
-                      state.allProducts.isEmpty) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
+                          if (state.status == InventoryStatus.loading &&
+                              state.allProducts.isEmpty) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(32.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
 
-                  if (state.status == InventoryStatus.success &&
-                      state.allProducts.isEmpty) {
-                    return PremiumEmptyState(
-                      title: 'Your Dashboard is Empty',
-                      subtitle:
-                          'It looks like you have no inventory data. Add some products to see your analytics here!',
-                    );
-                  }
+                          if (state.status == InventoryStatus.success &&
+                              state.allProducts.isEmpty) {
+                            return PremiumEmptyState(
+                              title: 'Your Dashboard is Empty',
+                              subtitle:
+                                  'It looks like you have no inventory data. Add some products to see your analytics here!',
+                            );
+                          }
 
-                  final now = DateTime.now();
-                  List<Product> filteredProducts = state.allProducts;
-                  if (filter == 'This Month') {
-                    filteredProducts = state.allProducts.where((p) {
-                      if (p.addedOn == null) return false;
-                      return p.addedOn!.year == now.year && p.addedOn!.month == now.month;
-                    }).toList();
-                  } else if (filter == 'This Year') {
-                    filteredProducts = state.allProducts.where((p) {
-                      if (p.addedOn == null) return false;
-                      return p.addedOn!.year == now.year;
-                    }).toList();
-                  }
+                          final now = DateTime.now();
+                          List<Product> filteredProducts = state.allProducts;
+                          if (filter == 'This Month') {
+                            filteredProducts = state.allProducts.where((p) {
+                              if (p.addedOn == null) return false;
+                              return p.addedOn!.year == now.year &&
+                                  p.addedOn!.month == now.month;
+                            }).toList();
+                          } else if (filter == 'This Year') {
+                            filteredProducts = state.allProducts.where((p) {
+                              if (p.addedOn == null) return false;
+                              return p.addedOn!.year == now.year;
+                            }).toList();
+                          }
 
-                  final totalProducts = filteredProducts.length;
-                  final totalValue = filteredProducts.fold<double>(
-                    0,
-                    (sum, item) => sum + (item.price * item.stock),
-                  );
-                  final lowStockItems = filteredProducts
-                      .where((p) => p.stock < 20)
-                      .length;
+                          final totalProducts = filteredProducts.length;
+                          final totalValue = filteredProducts.fold<double>(
+                            0,
+                            (sum, item) => sum + (item.price * item.stock),
+                          );
+                          final lowStockItems = filteredProducts
+                              .where((p) => p.stock < 20)
+                              .length;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: _buildMiniKpiCard(
-                                  'Total Products',
-                                  totalProducts.toString(),
-                                  'In your catalog',
-                                  Icons.inventory_2_outlined,
-                                  false,
-                                ),
+                              Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildMiniKpiCard(
+                                          'Total Products${filter != "All Time" ? " ($filter)" : ""}',
+                                          totalProducts.toString(),
+                                          'In your catalog',
+                                          Icons.inventory_2_outlined,
+                                          false,
+                                        ),
+                                      ),
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildMiniKpiCard(
+                                          'Low Stock${filter != "All Time" ? " ($filter)" : ""}',
+                                          lowStockItems.toString(),
+                                          'Needs attention',
+                                          Icons.warning_amber_rounded,
+                                          true,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  .animate()
+                                  .fade(duration: 400.ms)
+                                  .slideY(begin: 0.1, end: 0),
+                              SizedBox(height: 16),
+                              _buildWideKpiCard(
+                                    'Total Inventory Value${filter != "All Time" ? " ($filter)" : ""}',
+                                    '\$${totalValue.toStringAsFixed(2)}',
+                                    'Total estimated value',
+                                  )
+                                  .animate()
+                                  .fade(delay: 100.ms, duration: 400.ms)
+                                  .slideY(begin: 0.1, end: 0),
+                              SizedBox(height: 32),
+                              _buildSectionHeader(
+                                'Stock per Category',
+                                'View Report >',
                               ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: _buildMiniKpiCard(
-                                  'Low Stock',
-                                  lowStockItems.toString(),
-                                  'Needs attention',
-                                  Icons.warning_amber_rounded,
-                                  true,
-                                ),
-                              ),
+                              SizedBox(height: 24),
+                              _buildCategoryChart(filteredProducts),
+                              SizedBox(height: 20),
                             ],
-                          )
-                          .animate()
-                          .fade(duration: 400.ms)
-                          .slideY(begin: 0.1, end: 0),
-                      SizedBox(height: 16),
-                      _buildWideKpiCard(
-                            'Total Inventory Value',
-                            '\$${totalValue.toStringAsFixed(2)}',
-                            'Total estimated value',
-                          )
-                          .animate()
-                          .fade(delay: 100.ms, duration: 400.ms)
-                          .slideY(begin: 0.1, end: 0),
-                      SizedBox(height: 32),
-                      _buildSectionHeader(
-                        'Stock per Category',
-                        'View Report >',
+                          );
+                        },
                       ),
-                      SizedBox(height: 24),
-                      _buildCategoryChart(filteredProducts),
-                      SizedBox(height: 20),
                     ],
                   );
                 },
               ),
             ],
-          );
-        },
-      ),
-    ],
-  ),
+          ),
         ),
       ),
     );
@@ -405,7 +417,14 @@ class _DashboardPageState extends State<DashboardPage> {
             InkWell(
               onTap: () {
                 if (actionText.contains('View Report')) {
-                  context.go('/products');
+                  final filter = _selectedFilterNotifier.value;
+                  String? timeFilter;
+                  if (filter == 'This Month') {
+                    timeFilter = 'this_month';
+                  } else if (filter == 'This Year') {
+                    timeFilter = 'this_year';
+                  }
+                  context.go('/products', extra: {'timeFilter': timeFilter});
                 } else {
                   _showFilterBottomSheet();
                 }
@@ -473,9 +492,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   trailing: _selectedFilterNotifier.value == f
                       ? Icon(
-                        Icons.check_circle_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
+                          Icons.check_circle_rounded,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
                       : null,
                   onTap: () {
                     _selectedFilterNotifier.value = f;
@@ -747,7 +766,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.shadow.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: Offset(0, 4),
                     ),
@@ -770,7 +791,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 fit: BoxFit.contain,
               ),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -971,7 +992,9 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 class HeroCarousel extends StatefulWidget {
-  const HeroCarousel({super.key});
+  final VoidCallback? onViewAnalytics;
+
+  const HeroCarousel({super.key, this.onViewAnalytics});
 
   @override
   State<HeroCarousel> createState() => _HeroCarouselState();
@@ -1107,9 +1130,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
               ),
               SizedBox(height: 20),
               InkWell(
-                onTap: () {
-                  context.go('/products');
-                },
+                onTap: widget.onViewAnalytics,
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),

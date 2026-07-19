@@ -15,6 +15,7 @@ class InventoryState extends Equatable {
   final String? currentCategory;
   final String? sortBy;
   final bool lowStockOnly;
+  final String? timeFilter;
 
   const InventoryState({
     this.status = InventoryStatus.initial,
@@ -28,6 +29,7 @@ class InventoryState extends Equatable {
     this.currentCategory,
     this.sortBy,
     this.lowStockOnly = false,
+    this.timeFilter,
   });
 
   InventoryState copyWith({
@@ -42,9 +44,11 @@ class InventoryState extends Equatable {
     String? currentCategory,
     String? sortBy,
     bool? lowStockOnly,
+    String? timeFilter,
     bool clearQuery = false,
     bool clearCategory = false,
     bool clearSortBy = false,
+    bool clearTimeFilter = false,
   }) {
     return InventoryState(
       status: status ?? this.status,
@@ -58,6 +62,7 @@ class InventoryState extends Equatable {
       currentCategory: clearCategory ? null : (currentCategory ?? this.currentCategory),
       sortBy: clearSortBy ? null : (sortBy ?? this.sortBy),
       lowStockOnly: lowStockOnly ?? this.lowStockOnly,
+      timeFilter: clearTimeFilter ? null : (timeFilter ?? this.timeFilter),
     );
   }
 
@@ -74,5 +79,6 @@ class InventoryState extends Equatable {
         currentCategory,
         sortBy,
         lowStockOnly,
+        timeFilter,
       ];
 }
