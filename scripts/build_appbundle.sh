@@ -1,0 +1,1 @@
+flutter build appbundle --target=lib/main_production.dart --flavor=production --dart-define-from-file=config/prod.json

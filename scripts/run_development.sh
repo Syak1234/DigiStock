@@ -1,0 +1,1 @@
+flutter run --target=lib/main_development.dart --flavor=development --dart-define-from-file=config/dev.json

@@ -1,0 +1,1 @@
+flutter run --target=lib/main_staging.dart --flavor=staging --dart-define-from-file=config/stg.json

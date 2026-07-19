@@ -1,0 +1,5 @@
+#include "Debug.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER=$(BUNDLE_ID_BASE).dev
+DISPLAY_NAME=Product Inventory Dev
+FLUTTER_TARGET=lib/main_development.dart

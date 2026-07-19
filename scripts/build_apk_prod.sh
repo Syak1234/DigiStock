@@ -1,0 +1,1 @@
+flutter build apk --target lib/main_production.dart --flavor production --release --dart-define-from-file=config/prod.json
