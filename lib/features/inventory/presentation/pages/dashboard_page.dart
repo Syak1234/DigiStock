@@ -648,8 +648,8 @@ class _DashboardPageState extends State<DashboardPage> {
               left: 20,
               top: 20,
               bottom: 20,
-              right: MediaQuery.of(context).size.width > 380 ? 140 : 20,
-            ), // Dynamic right padding to avoid overlap
+              right: MediaQuery.of(context).size.width > 380 ? 180 : 20,
+            ),
             child: Row(
               children: [
                 Container(
@@ -735,7 +735,7 @@ class _DashboardPageState extends State<DashboardPage> {
           if (MediaQuery.of(context).size.width > 380) ...[
             Positioned(
               top: 20,
-              right: 140, // Middle right
+              right: 130, // Move icon further left to make space for coin
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -743,9 +743,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.shadow.withValues(alpha: 0.05),
+                      color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: Offset(0, 4),
                     ),
@@ -759,7 +757,7 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             Positioned(
-              right: 0,
+              right: -10,
               bottom: -10,
               top: -10,
               width: 120,
