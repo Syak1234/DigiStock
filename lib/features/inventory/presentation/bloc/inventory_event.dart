@@ -30,6 +30,8 @@ class LoadInventoryEvent extends InventoryEvent {
 
 class LoadCategoriesEvent extends InventoryEvent {}
 
+class LoadDashboardDataEvent extends InventoryEvent {}
+
 class DeleteProductEvent extends InventoryEvent {
   final String id;
   const DeleteProductEvent(this.id);

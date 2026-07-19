@@ -5,6 +5,7 @@ import 'package:product_inventory/features/inventory/domain/entities/product.dar
 import 'package:product_inventory/features/inventory/domain/usecases/inventory_use_cases.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/inventory_event.dart';
+import 'package:product_inventory/features/inventory/presentation/bloc/inventory_state.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/product_form_bloc.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/product_form_event.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/product_form_state.dart';
@@ -221,6 +222,9 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                 context.read<InventoryBloc>().add(
                   const LoadInventoryEvent(isRefresh: true),
                 );
+                context.read<InventoryBloc>().add(
+                  LoadDashboardDataEvent(),
+                );
                 if (isEditing) {
                   context.go('/products/${widget.productId}');
                 } else {
@@ -283,23 +287,41 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                                   : null,
                             ),
                             const SizedBox(height: 16),
-                            TextFormField(
-                              controller: _categoryController,
-                              decoration: _buildInputDecoration(
-                                context,
-                                'Category',
-                                'Select category',
-                                Icons.grid_view_rounded,
-                                suffixIcon: Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: Theme.of(
+                            BlocBuilder<InventoryBloc, InventoryState>(
+                              builder: (context, inventoryState) {
+                                final Set<String> categorySet = {'Electronics', 'Home', 'Furniture', 'Stationery', 'Apparel'};
+                                categorySet.addAll(inventoryState.categories);
+                                if (_categoryController.text.isNotEmpty) {
+                                  categorySet.add(_categoryController.text);
+                                }
+                                final List<String> categories = categorySet.toList()..sort();
+
+                                return DropdownButtonFormField<String>(
+                                  initialValue: _categoryController.text.isEmpty ? null : _categoryController.text,
+                                  decoration: _buildInputDecoration(
                                     context,
-                                  ).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              validator: (val) => val == null || val.isEmpty
-                                  ? 'Required'
-                                  : null,
+                                    'Category',
+                                    'Select category',
+                                    Icons.grid_view_rounded,
+                                  ),
+                                  icon: Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                  items: categories.map((String category) {
+                                    return DropdownMenuItem<String>(
+                                      value: category,
+                                      child: Text(category),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      _categoryController.text = newValue;
+                                    }
+                                  },
+                                  validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                                );
+                              },
                             ),
                             const SizedBox(height: 16),
                             Row(

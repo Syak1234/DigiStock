@@ -38,6 +38,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     context.read<InventoryBloc>().add(LoadInventoryEvent(isRefresh: true));
+    context.read<InventoryBloc>().add(LoadDashboardDataEvent());
   }
 
   @override
@@ -50,6 +51,9 @@ class _DashboardPageState extends State<DashboardPage> {
         onRefresh: () async {
           context.read<InventoryBloc>().add(
             LoadInventoryEvent(isRefresh: true),
+          );
+          context.read<InventoryBloc>().add(
+            LoadDashboardDataEvent(),
           );
         },
         child: SingleChildScrollView(
@@ -73,7 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       BlocBuilder<InventoryBloc, InventoryState>(
                         builder: (context, state) {
                   if (state.status == InventoryStatus.loading &&
-                      state.products.isEmpty) {
+                      state.allProducts.isEmpty) {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32.0),
@@ -83,7 +87,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   }
 
                   if (state.status == InventoryStatus.success &&
-                      state.products.isEmpty) {
+                      state.allProducts.isEmpty) {
                     return PremiumEmptyState(
                       title: 'Your Dashboard is Empty',
                       subtitle:
@@ -92,14 +96,14 @@ class _DashboardPageState extends State<DashboardPage> {
                   }
 
                   final now = DateTime.now();
-                  List<Product> filteredProducts = state.products;
+                  List<Product> filteredProducts = state.allProducts;
                   if (filter == 'This Month') {
-                    filteredProducts = state.products.where((p) {
+                    filteredProducts = state.allProducts.where((p) {
                       if (p.addedOn == null) return false;
                       return p.addedOn!.year == now.year && p.addedOn!.month == now.month;
                     }).toList();
                   } else if (filter == 'This Year') {
-                    filteredProducts = state.products.where((p) {
+                    filteredProducts = state.allProducts.where((p) {
                       if (p.addedOn == null) return false;
                       return p.addedOn!.year == now.year;
                     }).toList();

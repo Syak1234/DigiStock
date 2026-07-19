@@ -9,6 +9,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
 
   InventoryBloc({required this.useCases}) : super(const InventoryState()) {
     on<LoadInventoryEvent>(_onLoadInventory);
+    on<LoadDashboardDataEvent>(_onLoadDashboardData);
     on<LoadCategoriesEvent>(_onLoadCategories);
     on<DeleteProductEvent>(_onDeleteProduct);
   }
@@ -63,6 +64,14 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     );
   }
 
+  Future<void> _onLoadDashboardData(LoadDashboardDataEvent event, Emitter<InventoryState> emit) async {
+    final result = await useCases.getProducts(page: 1, limit: 100000);
+    result.fold(
+      (failure) => null,
+      (products) => emit(state.copyWith(allProducts: products))
+    );
+  }
+
   Future<void> _onLoadCategories(LoadCategoriesEvent event, Emitter<InventoryState> emit) async {
     final result = await useCases.getCategories();
     result.fold(
@@ -75,7 +84,10 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     final result = await useCases.deleteProduct(event.id);
     result.fold(
       (failure) => emit(state.copyWith(status: InventoryStatus.failure, errorMessage: failure.message)),
-      (_) => add(const LoadInventoryEvent(isRefresh: true))
+      (_) {
+        add(const LoadInventoryEvent(isRefresh: true));
+        add(LoadDashboardDataEvent());
+      }
     );
   }
 }

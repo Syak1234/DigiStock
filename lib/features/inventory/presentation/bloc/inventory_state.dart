@@ -6,6 +6,7 @@ enum InventoryStatus { initial, loading, success, failure }
 class InventoryState extends Equatable {
   final InventoryStatus status;
   final List<Product> products;
+  final List<Product> allProducts;
   final List<String> categories;
   final String? errorMessage;
   final int currentPage;
@@ -18,6 +19,7 @@ class InventoryState extends Equatable {
   const InventoryState({
     this.status = InventoryStatus.initial,
     this.products = const [],
+    this.allProducts = const [],
     this.categories = const [],
     this.errorMessage,
     this.currentPage = 1,
@@ -31,6 +33,7 @@ class InventoryState extends Equatable {
   InventoryState copyWith({
     InventoryStatus? status,
     List<Product>? products,
+    List<Product>? allProducts,
     List<String>? categories,
     String? errorMessage,
     int? currentPage,
@@ -46,6 +49,7 @@ class InventoryState extends Equatable {
     return InventoryState(
       status: status ?? this.status,
       products: products ?? this.products,
+      allProducts: allProducts ?? this.allProducts,
       categories: categories ?? this.categories,
       errorMessage: errorMessage ?? this.errorMessage,
       currentPage: currentPage ?? this.currentPage,
@@ -61,6 +65,7 @@ class InventoryState extends Equatable {
   List<Object?> get props => [
         status,
         products,
+        allProducts,
         categories,
         errorMessage,
         currentPage,
