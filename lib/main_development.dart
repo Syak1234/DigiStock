@@ -5,11 +5,11 @@ import 'package:device_preview/device_preview.dart';
 
 void main() {
   bootstrap(
-    (useCases, authRepository, hasSeenOnboarding) => DevicePreview(
+    (useCases, authUseCases, hasSeenOnboarding) => DevicePreview(
       enabled: false,
       builder: (context) => MyApp(
         useCases: useCases,
-        authRepository: authRepository,
+        authUseCases: authUseCases,
         hasSeenOnboarding: hasSeenOnboarding,
       ),
     ),

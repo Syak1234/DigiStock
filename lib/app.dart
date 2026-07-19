@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:product_inventory/features/auth/domain/repositories/auth_repository.dart';
 import 'package:product_inventory/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:product_inventory/core/router/app_router.dart';
 import 'package:product_inventory/core/theme/app_theme.dart';
 import 'package:product_inventory/features/inventory/domain/usecases/inventory_use_cases.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:product_inventory/features/auth/data/auth_repository.dart';
+import 'package:product_inventory/features/auth/domain/usecases/auth_use_cases.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_event.dart';
 
 class MyApp extends StatefulWidget {
   final InventoryUseCases useCases;
-  final AuthRepository authRepository;
+  final AuthUseCases authUseCases;
   final bool hasSeenOnboarding;
 
-  const MyApp({super.key, required this.useCases, required this.authRepository, required this.hasSeenOnboarding});
+  const MyApp({
+    super.key,
+    required this.useCases,
+    required this.authUseCases,
+    required this.hasSeenOnboarding,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -28,7 +34,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _authBloc = AuthBloc(authRepository: widget.authRepository)..add(CheckAuthStatusEvent());
+    _authBloc = AuthBloc(useCases: widget.authUseCases)
+      ..add(CheckAuthStatusEvent());
     _router = AppRouter.createRouter(widget.hasSeenOnboarding, _authBloc);
   }
 
@@ -43,7 +50,7 @@ class _MyAppState extends State<MyApp> {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: widget.useCases),
-        RepositoryProvider.value(value: widget.authRepository),
+        RepositoryProvider.value(value: widget.authUseCases),
       ],
       child: MultiBlocProvider(
         providers: [

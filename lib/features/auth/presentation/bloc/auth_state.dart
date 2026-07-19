@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
+import 'package:product_inventory/features/auth/domain/entities/user.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
 
 class AuthState extends Equatable {
   final AuthStatus status;
   final String? errorMessage;
-  final Map<String, dynamic>? userSession;
+  final User? userSession;
 
   const AuthState({
     this.status = AuthStatus.initial,
@@ -16,7 +17,7 @@ class AuthState extends Equatable {
   AuthState copyWith({
     AuthStatus? status,
     String? errorMessage,
-    Map<String, dynamic>? userSession,
+    User? userSession,
   }) {
     return AuthState(
       status: status ?? this.status,

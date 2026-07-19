@@ -7,9 +7,11 @@ import 'package:product_inventory/features/inventory/data/datasources/hive_inven
 import 'package:product_inventory/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:product_inventory/features/inventory/domain/usecases/inventory_use_cases.dart';
 
-import 'package:product_inventory/features/auth/data/auth_repository.dart';
+import 'package:product_inventory/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:product_inventory/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:product_inventory/features/auth/domain/usecases/auth_use_cases.dart';
 
-void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, AuthRepository authRepository, bool hasSeenOnboarding) builder) {
+void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, AuthUseCases authUseCases, bool hasSeenOnboarding) builder) {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
@@ -32,8 +34,10 @@ void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, AuthReposit
     final repository = InventoryRepositoryImpl(dataSource);
     final useCases = InventoryUseCases(repository);
     
-    final authRepository = AuthRepository();
+    final authLocalDataSource = AuthLocalDataSource();
+    final authRepository = AuthRepositoryImpl(authLocalDataSource);
+    final authUseCases = AuthUseCases(authRepository);
     
-    runApp(await builder(useCases, authRepository, hasSeenOnboarding));
+    runApp(await builder(useCases, authUseCases, hasSeenOnboarding));
   }, (error, stackTrace) => log(error.toString(), stackTrace: stackTrace));
 }

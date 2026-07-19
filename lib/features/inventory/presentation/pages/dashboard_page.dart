@@ -249,7 +249,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       final email =
-                          state.userSession?['email'] as String? ?? 'Guest';
+                          state.userSession?.email ?? 'Guest';
                       final name = email.split('@')[0];
                       final displayName = name.isNotEmpty
                           ? name[0].toUpperCase() + name.substring(1)

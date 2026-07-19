@@ -1,45 +1,42 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:product_inventory/features/auth/domain/entities/user.dart';
 
-class AuthRepository {
+class AuthLocalDataSource {
   static const String _sessionKey = 'auth_session';
 
-  Future<void> login(String email, String password) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Create a dummy JSON session
+  Future<void> cacheSession(User user) async {
     final sessionData = {
-      'email': email,
-      'token': 'mock_jwt_token_${DateTime.now().millisecondsSinceEpoch}',
-      'loginTime': DateTime.now().toIso8601String(),
+      'email': user.email,
+      'token': user.token,
+      'loginTime': user.loginTime.toIso8601String(),
     };
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_sessionKey, jsonEncode(sessionData));
   }
 
-  Future<void> logout() async {
+  Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey);
   }
 
-  Future<Map<String, dynamic>?> getSession() async {
+  Future<User?> getSession() async {
     final prefs = await SharedPreferences.getInstance();
     final sessionString = prefs.getString(_sessionKey);
     
     if (sessionString != null) {
       try {
-        return jsonDecode(sessionString) as Map<String, dynamic>;
+        final data = jsonDecode(sessionString) as Map<String, dynamic>;
+        return User(
+          email: data['email'] as String,
+          token: data['token'] as String,
+          loginTime: DateTime.parse(data['loginTime'] as String),
+        );
       } catch (e) {
         return null;
       }
     }
     return null;
-  }
-
-  Future<bool> isLoggedIn() async {
-    final session = await getSession();
-    return session != null;
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:product_inventory/features/auth/data/auth_repository.dart';
+import 'package:product_inventory/features/auth/domain/usecases/auth_use_cases.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository authRepository;
+  final AuthUseCases useCases;
 
-  AuthBloc({required this.authRepository}) : super(const AuthState()) {
+  AuthBloc({required this.useCases}) : super(const AuthState()) {
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
     on<LoginRequestedEvent>(_onLoginRequested);
     on<LogoutRequestedEvent>(_onLogoutRequested);
@@ -14,7 +14,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     try {
-      final session = await authRepository.getSession();
+      final session = await useCases.getSession();
       if (session != null) {
         emit(state.copyWith(status: AuthStatus.authenticated, userSession: session));
       } else {
@@ -34,8 +34,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
       
-      await authRepository.login(event.email, event.password);
-      final session = await authRepository.getSession();
+      await useCases.login(event.email, event.password);
+      final session = await useCases.getSession();
       
       emit(state.copyWith(status: AuthStatus.authenticated, userSession: session, errorMessage: null));
     } catch (e) {
@@ -46,7 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogoutRequested(LogoutRequestedEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    await authRepository.logout();
+    await useCases.logout();
     emit(state.copyWith(status: AuthStatus.unauthenticated, userSession: null));
   }
 }
