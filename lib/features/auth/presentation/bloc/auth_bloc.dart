@@ -13,40 +13,56 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onCheckAuthStatus(CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
-    try {
-      final session = await useCases.getSession();
-      if (session != null) {
-        emit(state.copyWith(status: AuthStatus.authenticated, userSession: session));
-      } else {
-        emit(state.copyWith(status: AuthStatus.unauthenticated));
-      }
-    } catch (_) {
-      emit(state.copyWith(status: AuthStatus.unauthenticated));
-    }
+    final result = await useCases.getSession();
+    result.fold(
+      (failure) => emit(state.copyWith(status: AuthStatus.unauthenticated)),
+      (session) {
+        if (session != null) {
+          emit(state.copyWith(status: AuthStatus.authenticated, userSession: session));
+        } else {
+          emit(state.copyWith(status: AuthStatus.unauthenticated));
+        }
+      },
+    );
   }
 
   Future<void> _onLoginRequested(LoginRequestedEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    try {
-      if (event.email.isEmpty || event.password.isEmpty) {
-        emit(state.copyWith(status: AuthStatus.error, errorMessage: 'Email and password cannot be empty.'));
-        emit(state.copyWith(status: AuthStatus.unauthenticated));
-        return;
-      }
-      
-      await useCases.login(event.email, event.password);
-      final session = await useCases.getSession();
-      
-      emit(state.copyWith(status: AuthStatus.authenticated, userSession: session, errorMessage: null));
-    } catch (e) {
-      emit(state.copyWith(status: AuthStatus.error, errorMessage: 'Login failed: ${e.toString()}'));
+    
+    if (event.email.isEmpty || event.password.isEmpty) {
+      emit(state.copyWith(status: AuthStatus.error, errorMessage: 'Email and password cannot be empty.'));
       emit(state.copyWith(status: AuthStatus.unauthenticated));
+      return;
     }
+    
+    final result = await useCases.login(event.email, event.password);
+    
+    await result.fold(
+      (failure) async {
+        emit(state.copyWith(status: AuthStatus.error, errorMessage: failure.message));
+        emit(state.copyWith(status: AuthStatus.unauthenticated));
+      },
+      (success) async {
+        final sessionResult = await useCases.getSession();
+        sessionResult.fold(
+          (failure) {
+            emit(state.copyWith(status: AuthStatus.error, errorMessage: failure.message));
+            emit(state.copyWith(status: AuthStatus.unauthenticated));
+          },
+          (session) {
+            emit(state.copyWith(status: AuthStatus.authenticated, userSession: session, errorMessage: null));
+          }
+        );
+      },
+    );
   }
 
   Future<void> _onLogoutRequested(LogoutRequestedEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    await useCases.logout();
-    emit(state.copyWith(status: AuthStatus.unauthenticated, userSession: null));
+    final result = await useCases.logout();
+    result.fold(
+      (failure) => emit(state.copyWith(status: AuthStatus.error, errorMessage: failure.message)),
+      (_) => emit(state.copyWith(status: AuthStatus.unauthenticated, userSession: null)),
+    );
   }
 }

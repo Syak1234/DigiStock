@@ -2,6 +2,9 @@ import 'package:product_inventory/features/inventory/data/datasources/hive_inven
 import 'package:product_inventory/features/inventory/data/models/product_model.dart';
 import 'package:product_inventory/features/inventory/domain/entities/product.dart';
 import 'package:product_inventory/features/inventory/domain/repositories/inventory_repository.dart';
+import 'package:product_inventory/core/error/exceptions.dart';
+import 'package:product_inventory/core/error/failures.dart';
+import 'package:product_inventory/core/utils/either.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
   final HiveInventoryDataSource dataSource;
@@ -9,7 +12,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   InventoryRepositoryImpl(this.dataSource);
 
   @override
-  Future<List<Product>> getProducts({
+  Future<Either<Failure, List<Product>>> getProducts({
     int page = 1,
     int limit = 10,
     String? query,
@@ -17,40 +20,80 @@ class InventoryRepositoryImpl implements InventoryRepository {
     String? sortBy,
     bool? lowStockOnly,
   }) async {
-    final models = await dataSource.getProducts(
-      page: page,
-      limit: limit,
-      query: query,
-      category: category,
-      sortBy: sortBy,
-      lowStockOnly: lowStockOnly,
-    );
-    return models.map((model) => model.toEntity()).toList();
+    try {
+      final models = await dataSource.getProducts(
+        page: page,
+        limit: limit,
+        query: query,
+        category: category,
+        sortBy: sortBy,
+        lowStockOnly: lowStockOnly,
+      );
+      return Right(models.map((model) => model.toEntity()).toList());
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 
   @override
-  Future<Product?> getProductById(String id) async {
-    final model = await dataSource.getProductById(id);
-    return model?.toEntity();
+  Future<Either<Failure, Product?>> getProductById(String id) async {
+    try {
+      final model = await dataSource.getProductById(id);
+      return Right(model?.toEntity());
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 
   @override
-  Future<void> addProduct(Product product) async {
-    await dataSource.addProduct(ProductModel.fromEntity(product));
+  Future<Either<Failure, void>> addProduct(Product product) async {
+    try {
+      await dataSource.addProduct(ProductModel.fromEntity(product));
+      return const Right(null);
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 
   @override
-  Future<void> updateProduct(Product product) async {
-    await dataSource.updateProduct(ProductModel.fromEntity(product));
+  Future<Either<Failure, void>> updateProduct(Product product) async {
+    try {
+      await dataSource.updateProduct(ProductModel.fromEntity(product));
+      return const Right(null);
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 
   @override
-  Future<void> deleteProduct(String id) async {
-    await dataSource.deleteProduct(id);
+  Future<Either<Failure, void>> deleteProduct(String id) async {
+    try {
+      await dataSource.deleteProduct(id);
+      return const Right(null);
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 
   @override
-  Future<List<String>> getCategories() async {
-    return await dataSource.getCategories();
+  Future<Either<Failure, List<String>>> getCategories() async {
+    try {
+      final categories = await dataSource.getCategories();
+      return Right(categories);
+    } on AppException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(CacheFailure('An unexpected error occurred: $e'));
+    }
   }
 }

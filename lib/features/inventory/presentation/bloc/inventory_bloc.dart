@@ -14,67 +14,68 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
   }
 
   Future<void> _onLoadInventory(LoadInventoryEvent event, Emitter<InventoryState> emit) async {
-    try {
-      if (event.isRefresh) {
-        emit(state.copyWith(
-          status: InventoryStatus.loading,
-          currentPage: 1,
-          products: [],
-          hasReachedMax: false,
-          currentQuery: event.query,
-          currentCategory: event.category,
-          sortBy: event.sortBy,
-          lowStockOnly: event.lowStockOnly ?? state.lowStockOnly,
-          clearQuery: event.query == null,
-          clearCategory: event.category == null,
-          clearSortBy: event.sortBy == null,
-        ));
-      } else {
-        if (state.hasReachedMax) return;
-        if (state.status == InventoryStatus.initial) {
-          emit(state.copyWith(status: InventoryStatus.loading));
+    if (event.isRefresh) {
+      emit(state.copyWith(
+        status: InventoryStatus.loading,
+        currentPage: 1,
+        products: [],
+        hasReachedMax: false,
+        currentQuery: event.query,
+        currentCategory: event.category,
+        sortBy: event.sortBy,
+        lowStockOnly: event.lowStockOnly ?? state.lowStockOnly,
+        clearQuery: event.query == null,
+        clearCategory: event.category == null,
+        clearSortBy: event.sortBy == null,
+      ));
+    } else {
+      if (state.hasReachedMax) return;
+      if (state.status == InventoryStatus.initial) {
+        emit(state.copyWith(status: InventoryStatus.loading));
+      }
+    }
+
+    final page = event.isRefresh ? 1 : state.currentPage;
+    
+    final result = await useCases.getProducts(
+      page: page,
+      limit: _limit,
+      query: state.currentQuery,
+      category: state.currentCategory,
+      sortBy: state.sortBy,
+      lowStockOnly: state.lowStockOnly,
+    );
+
+    result.fold(
+      (failure) => emit(state.copyWith(status: InventoryStatus.failure, errorMessage: failure.message)),
+      (products) {
+        if (products.isEmpty) {
+          emit(state.copyWith(hasReachedMax: true, status: InventoryStatus.success));
+        } else {
+          emit(state.copyWith(
+            status: InventoryStatus.success,
+            products: List.of(state.products)..addAll(products),
+            hasReachedMax: products.length < _limit,
+            currentPage: page + 1,
+          ));
         }
       }
-
-      final page = event.isRefresh ? 1 : state.currentPage;
-      
-      final products = await useCases.getProducts(
-        page: page,
-        limit: _limit,
-        query: state.currentQuery,
-        category: state.currentCategory,
-        sortBy: state.sortBy,
-        lowStockOnly: state.lowStockOnly,
-      );
-
-      if (products.isEmpty) {
-        emit(state.copyWith(hasReachedMax: true, status: InventoryStatus.success));
-      } else {
-        emit(state.copyWith(
-          status: InventoryStatus.success,
-          products: List.of(state.products)..addAll(products),
-          hasReachedMax: products.length < _limit,
-          currentPage: page + 1,
-        ));
-      }
-    } catch (e) {
-      emit(state.copyWith(status: InventoryStatus.failure, errorMessage: e.toString()));
-    }
+    );
   }
 
   Future<void> _onLoadCategories(LoadCategoriesEvent event, Emitter<InventoryState> emit) async {
-    try {
-      final categories = await useCases.getCategories();
-      emit(state.copyWith(categories: categories));
-    } catch (_) {}
+    final result = await useCases.getCategories();
+    result.fold(
+      (failure) => null,
+      (categories) => emit(state.copyWith(categories: categories))
+    );
   }
 
   Future<void> _onDeleteProduct(DeleteProductEvent event, Emitter<InventoryState> emit) async {
-    try {
-      await useCases.deleteProduct(event.id);
-      add(const LoadInventoryEvent(isRefresh: true));
-    } catch (e) {
-      emit(state.copyWith(status: InventoryStatus.failure, errorMessage: e.toString()));
-    }
+    final result = await useCases.deleteProduct(event.id);
+    result.fold(
+      (failure) => emit(state.copyWith(status: InventoryStatus.failure, errorMessage: failure.message)),
+      (_) => add(const LoadInventoryEvent(isRefresh: true))
+    );
   }
 }

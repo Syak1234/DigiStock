@@ -9,6 +9,8 @@ import 'package:product_inventory/core/widgets/premium_network_image.dart';
 import 'package:product_inventory/core/widgets/premium_icon_button.dart';
 import 'package:product_inventory/core/utils/app_snackbar.dart';
 import 'package:product_inventory/core/widgets/premium_card.dart';
+import 'package:product_inventory/core/error/failures.dart';
+import 'package:product_inventory/core/utils/either.dart';
 
 class ProductDetailsPage extends StatelessWidget {
   final String productId;
@@ -17,7 +19,7 @@ class ProductDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Product?>(
+    return FutureBuilder<Either<Failure, Product?>>(
       future: context.read<InventoryBloc>().useCases.getProductById(productId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -31,13 +33,27 @@ class ProductDetailsPage extends StatelessWidget {
           return Scaffold(
             backgroundColor: Theme.of(context).colorScheme.surface,
             appBar: AppBar(title: const Text('Error')),
-            body: const Center(child: Text('Product not found.')),
+            body: const Center(child: Text('An error occurred.')),
           );
         }
 
-        final product = snapshot.data!;
-        final theme = Theme.of(context);
-        final colorScheme = theme.colorScheme;
+        return snapshot.data!.fold(
+          (failure) => Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            appBar: AppBar(title: const Text('Error')),
+            body: Center(child: Text('Error: ${failure.message}')),
+          ),
+          (product) {
+            if (product == null) {
+              return Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                appBar: AppBar(title: const Text('Error')),
+                body: const Center(child: Text('Product not found.')),
+              );
+            }
+
+            final theme = Theme.of(context);
+            final colorScheme = theme.colorScheme;
         
         final formattedAddedOn = product.addedOn != null 
             ? '${_getMonth(product.addedOn!.month)} ${product.addedOn!.day}, ${product.addedOn!.year}'
@@ -263,6 +279,8 @@ class ProductDetailsPage extends StatelessWidget {
               ],
             ),
           ),
+        );
+          },
         );
       },
     );

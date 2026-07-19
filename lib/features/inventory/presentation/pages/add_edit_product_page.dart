@@ -62,16 +62,21 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
 
   Future<void> _loadProduct() async {
     if (widget.productId != null) {
-      final product = await context.read<InventoryUseCases>().getProductById(widget.productId!);
-      if (product != null) {
-        _existingProduct = product;
-        _nameController.text = product.name;
-        _descController.text = product.description;
-        _priceController.text = product.price.toString();
-        _stockController.text = product.stock.toString();
-        _categoryController.text = product.category;
-        _imageUrlController.text = product.imageUrl;
-      }
+      final result = await context.read<InventoryUseCases>().getProductById(widget.productId!);
+      result.fold(
+        (failure) {},
+        (product) {
+          if (product != null) {
+            _existingProduct = product;
+            _nameController.text = product.name;
+            _descController.text = product.description;
+            _priceController.text = product.price.toString();
+            _stockController.text = product.stock.toString();
+            _categoryController.text = product.category;
+            _imageUrlController.text = product.imageUrl;
+          }
+        }
+      );
     }
     _isLoading.value = false;
     if (mounted) {

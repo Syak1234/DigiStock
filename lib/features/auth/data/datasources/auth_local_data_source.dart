@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:product_inventory/features/auth/domain/entities/user.dart';
+import 'package:product_inventory/core/error/exceptions.dart';
 
 class AuthLocalDataSource {
   static const String _sessionKey = 'auth_session';
@@ -34,7 +35,7 @@ class AuthLocalDataSource {
           loginTime: DateTime.parse(data['loginTime'] as String),
         );
       } catch (e) {
-        return null;
+        throw CacheException('Failed to decode cached session: $e');
       }
     }
     return null;

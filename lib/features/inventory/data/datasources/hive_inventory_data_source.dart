@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:product_inventory/features/inventory/data/models/product_model.dart';
 import 'package:uuid/uuid.dart';
+import 'package:product_inventory/core/error/exceptions.dart';
 
 class HiveInventoryDataSource {
   static const String boxName = 'products_box';
@@ -40,10 +41,11 @@ class HiveInventoryDataSource {
   }
 
   Future<List<ProductModel>> getProducts({int page = 1, int limit = 10, String? query, String? category, String? sortBy, bool? lowStockOnly}) async {
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      // Simulate network delay
+      await Future.delayed(const Duration(milliseconds: 500));
 
-    var allProducts = productBox.values.toList();
+      var allProducts = productBox.values.toList();
 
     if (query != null && query.isNotEmpty) {
       allProducts = allProducts.where((p) => p.name.toLowerCase().contains(query.toLowerCase())).toList();
@@ -79,29 +81,52 @@ class HiveInventoryDataSource {
       return [];
     }
 
-    final endIndex = (startIndex + limit) > allProducts.length ? allProducts.length : (startIndex + limit);
-    return allProducts.sublist(startIndex, endIndex);
+      final endIndex = (startIndex + limit) > allProducts.length ? allProducts.length : (startIndex + limit);
+      return allProducts.sublist(startIndex, endIndex);
+    } catch (e) {
+      throw CacheException('Failed to fetch products: $e');
+    }
   }
 
   Future<ProductModel?> getProductById(String id) async {
-    return productBox.get(id);
+    try {
+      return productBox.get(id);
+    } catch (e) {
+      throw CacheException('Failed to fetch product: $e');
+    }
   }
 
   Future<void> addProduct(ProductModel product) async {
-    await productBox.put(product.id, product);
+    try {
+      await productBox.put(product.id, product);
+    } catch (e) {
+      throw CacheException('Failed to add product: $e');
+    }
   }
 
   Future<void> updateProduct(ProductModel product) async {
-    await productBox.put(product.id, product);
+    try {
+      await productBox.put(product.id, product);
+    } catch (e) {
+      throw CacheException('Failed to update product: $e');
+    }
   }
 
   Future<void> deleteProduct(String id) async {
-    await productBox.delete(id);
+    try {
+      await productBox.delete(id);
+    } catch (e) {
+      throw CacheException('Failed to delete product: $e');
+    }
   }
 
   Future<List<String>> getCategories() async {
-    final categories = productBox.values.map((p) => p.category).toSet().toList();
-    categories.sort();
-    return categories;
+    try {
+      final categories = productBox.values.map((p) => p.category).toSet().toList();
+      categories.sort();
+      return categories;
+    } catch (e) {
+      throw CacheException('Failed to fetch categories: $e');
+    }
   }
 }

@@ -20,15 +20,14 @@ class ProductFormBloc extends Bloc<ProductFormEvent, ProductFormState> {
 
   Future<void> _onSubmit(SubmitProductForm event, Emitter<ProductFormState> emit) async {
     emit(state.copyWith(status: ProductFormStatus.loading));
-    try {
-      if (state.isEditing) {
-        await useCases.updateProduct(event.product);
-      } else {
-        await useCases.addProduct(event.product);
-      }
-      emit(state.copyWith(status: ProductFormStatus.success));
-    } catch (e) {
-      emit(state.copyWith(status: ProductFormStatus.failure, errorMessage: e.toString()));
-    }
+    
+    final result = state.isEditing 
+      ? await useCases.updateProduct(event.product)
+      : await useCases.addProduct(event.product);
+      
+    result.fold(
+      (failure) => emit(state.copyWith(status: ProductFormStatus.failure, errorMessage: failure.message)),
+      (_) => emit(state.copyWith(status: ProductFormStatus.success))
+    );
   }
 }

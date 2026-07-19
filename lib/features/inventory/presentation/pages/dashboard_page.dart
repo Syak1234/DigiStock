@@ -443,24 +443,26 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: bgColor,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(icon, color: color, size: 20),
+                      child: Icon(icon, color: color, size: 16),
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -570,8 +572,8 @@ class _DashboardPageState extends State<DashboardPage> {
               left: 20,
               top: 20,
               bottom: 20,
-              right: 140,
-            ), // Added right padding to avoid overlap
+              right: MediaQuery.of(context).size.width > 380 ? 140 : 20,
+            ), // Dynamic right padding to avoid overlap
             child: Row(
               children: [
                 Container(
@@ -654,41 +656,43 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
           ),
-          Positioned(
-            top: 20,
-            right: 140, // Middle right
-            child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onPrimary,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.shadow.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.trending_up_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 16,
+          if (MediaQuery.of(context).size.width > 380) ...[
+            Positioned(
+              top: 20,
+              right: 140, // Middle right
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.shadow.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.trending_up_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 16,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: -10,
-            top: -10,
-            width: 120,
-            child: Image.asset(
-              'assets/images/premium_3d_coins.png',
-              fit: BoxFit.contain,
+            Positioned(
+              right: 0,
+              bottom: -10,
+              top: -10,
+              width: 120,
+              child: Image.asset(
+                'assets/images/premium_3d_coins.png',
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
+          ]
         ],
       ),
     );

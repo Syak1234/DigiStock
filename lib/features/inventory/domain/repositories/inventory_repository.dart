@@ -1,7 +1,10 @@
 import 'package:product_inventory/features/inventory/domain/entities/product.dart';
 
+import 'package:product_inventory/core/error/failures.dart';
+import 'package:product_inventory/core/utils/either.dart';
+
 abstract class InventoryRepository {
-  Future<List<Product>> getProducts({
+  Future<Either<Failure, List<Product>>> getProducts({
     int page = 1,
     int limit = 10,
     String? query,
@@ -10,13 +13,13 @@ abstract class InventoryRepository {
     bool? lowStockOnly,
   });
 
-  Future<Product?> getProductById(String id);
+  Future<Either<Failure, Product?>> getProductById(String id);
 
-  Future<void> addProduct(Product product);
+  Future<Either<Failure, void>> addProduct(Product product);
 
-  Future<void> updateProduct(Product product);
+  Future<Either<Failure, void>> updateProduct(Product product);
 
-  Future<void> deleteProduct(String id);
+  Future<Either<Failure, void>> deleteProduct(String id);
 
-  Future<List<String>> getCategories();
+  Future<Either<Failure, List<String>>> getCategories();
 }
