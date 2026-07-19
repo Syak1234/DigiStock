@@ -3,19 +3,21 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
-  final Widget child;
+  /// The [StatefulNavigationShell] manages the indexed stack of tab branches.
+  /// Each branch keeps its subtree alive so switching tabs never causes a rebuild.
+  final StatefulNavigationShell navigationShell;
 
-  const ScaffoldWithNavBar({super.key, required this.child});
+  const ScaffoldWithNavBar({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.toString();
-    int currentIndex =
-        location.startsWith('/products') && location == '/products' ? 1 : 0;
+    final int currentIndex = navigationShell.currentIndex;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: child,
+      // The navigationShell IS the body — it renders the active branch's page
+      // while keeping all other branches alive in the widget tree.
+      body: navigationShell,
       floatingActionButton: Container(
         height: 64,
         width: 64,
@@ -80,7 +82,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
                 icon: Icons.dashboard_rounded,
                 label: 'Dashboard',
                 isActive: currentIndex == 0,
-                onTap: () => context.go('/'),
+                onTap: () => navigationShell.goBranch(0),
               ),
               const SizedBox(width: 48), // Space for the FAB
               _buildNavItem(
@@ -88,7 +90,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
                 icon: Icons.inventory_2_outlined,
                 label: 'Products',
                 isActive: currentIndex == 1,
-                onTap: () => context.go('/products'),
+                onTap: () => navigationShell.goBranch(1),
               ),
             ],
           ),

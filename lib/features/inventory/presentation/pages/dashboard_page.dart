@@ -35,112 +35,107 @@ class _DashboardPageState extends State<DashboardPage> {
       key: _scaffoldKey,
       drawer: _buildSidebar(context),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: BlocBuilder<InventoryBloc, InventoryState>(
-        builder: (context, state) {
-          if (state.status == InventoryStatus.loading &&
-              state.products.isEmpty) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (state.status == InventoryStatus.success &&
-              state.products.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<InventoryBloc>().add(
-                  LoadInventoryEvent(isRefresh: true),
-                );
-              },
-              child: ListView(
-                physics: AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(height: 100),
-                  PremiumEmptyState(
-                    title: 'Your Dashboard is Empty',
-                    subtitle:
-                        'It looks like you have no inventory data. Add some products to see your analytics here!',
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final totalProducts = state.products.length;
-          final totalValue = state.products.fold<double>(
-            0,
-            (sum, item) => sum + (item.price * item.stock),
-          );
-          final lowStockItems = state.products
-              .where((p) => p.stock < 20)
-              .length;
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<InventoryBloc>().add(
-                LoadInventoryEvent(isRefresh: true),
-              );
-            },
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 60,
-                bottom: 120,
-              ),
-              physics: AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  SizedBox(height: 24),
-                  HeroCarousel(),
-                  SizedBox(height: 32),
-                  _buildSectionHeader('Overview', 'This Month'),
-                  SizedBox(height: 16),
-                  Row(
-                        children: [
-                          Expanded(
-                            child: _buildMiniKpiCard(
-                              'Total Products',
-                              totalProducts.toString(),
-                              'In your catalog',
-                              Icons.inventory_2_outlined,
-                              false,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _buildMiniKpiCard(
-                              'Low Stock',
-                              lowStockItems.toString(),
-                              'Needs attention',
-                              Icons.warning_amber_rounded,
-                              true,
-                            ),
-                          ),
-                        ],
-                      )
-                      .animate()
-                      .fade(delay: 100.ms, duration: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
-                  SizedBox(height: 16),
-                  _buildWideKpiCard(
-                        'Total Inventory Value',
-                        '\$${totalValue.toStringAsFixed(2)}',
-                        'Total estimated value',
-                      )
-                      .animate()
-                      .fade(delay: 200.ms, duration: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
-                  SizedBox(height: 32),
-                  _buildSectionHeader('Stock per Category', 'View Report >'),
-                  SizedBox(height: 24),
-                  _buildCategoryChart(state),
-                  SizedBox(height: 20),
-                ],
-              ),
-            ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<InventoryBloc>().add(
+            LoadInventoryEvent(isRefresh: true),
           );
         },
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 120),
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              SizedBox(height: 24),
+              HeroCarousel(),
+              SizedBox(height: 32),
+              _buildSectionHeader('Overview', 'This Month'),
+              SizedBox(height: 16),
+              BlocBuilder<InventoryBloc, InventoryState>(
+                builder: (context, state) {
+                  if (state.status == InventoryStatus.loading &&
+                      state.products.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  if (state.status == InventoryStatus.success &&
+                      state.products.isEmpty) {
+                    return PremiumEmptyState(
+                      title: 'Your Dashboard is Empty',
+                      subtitle:
+                          'It looks like you have no inventory data. Add some products to see your analytics here!',
+                    );
+                  }
+
+                  final totalProducts = state.products.length;
+                  final totalValue = state.products.fold<double>(
+                    0,
+                    (sum, item) => sum + (item.price * item.stock),
+                  );
+                  final lowStockItems = state.products
+                      .where((p) => p.stock < 20)
+                      .length;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                            children: [
+                              Expanded(
+                                child: _buildMiniKpiCard(
+                                  'Total Products',
+                                  totalProducts.toString(),
+                                  'In your catalog',
+                                  Icons.inventory_2_outlined,
+                                  false,
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildMiniKpiCard(
+                                  'Low Stock',
+                                  lowStockItems.toString(),
+                                  'Needs attention',
+                                  Icons.warning_amber_rounded,
+                                  true,
+                                ),
+                              ),
+                            ],
+                          )
+                          .animate()
+                          .fade(duration: 400.ms)
+                          .slideY(begin: 0.1, end: 0),
+                      SizedBox(height: 16),
+                      _buildWideKpiCard(
+                            'Total Inventory Value',
+                            '\$${totalValue.toStringAsFixed(2)}',
+                            'Total estimated value',
+                          )
+                          .animate()
+                          .fade(delay: 100.ms, duration: 400.ms)
+                          .slideY(begin: 0.1, end: 0),
+                      SizedBox(height: 32),
+                      _buildSectionHeader(
+                        'Stock per Category',
+                        'View Report >',
+                      ),
+                      SizedBox(height: 24),
+                      _buildCategoryChart(state),
+                      SizedBox(height: 20),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -194,8 +189,29 @@ class _DashboardPageState extends State<DashboardPage> {
 
   String _getDate() {
     final now = DateTime.now();
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    final weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final weekdays = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
     return '${weekdays[now.weekday - 1]}, ${now.day} ${months[now.month - 1]}';
   }
 
@@ -243,7 +259,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       Text(
                         'admin@example.com',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.8),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimary.withValues(alpha: 0.8),
                           fontSize: 12,
                         ),
                       ),
@@ -254,21 +272,45 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.dashboard_rounded, color: Theme.of(context).colorScheme.primary),
-            title: Text('Dashboard', style: TextStyle(fontWeight: FontWeight.w600)),
+            leading: Icon(
+              Icons.dashboard_rounded,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              'Dashboard',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
-            leading: Icon(Icons.settings_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            title: Text('Settings', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            leading: Icon(
+              Icons.settings_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               AppSnackBar.showInfo(context, 'Settings coming soon');
             },
           ),
           ListTile(
-            leading: Icon(Icons.help_outline_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            title: Text('Help & Support', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            leading: Icon(
+              Icons.help_outline_rounded,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              'Help & Support',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               AppSnackBar.showInfo(context, 'Support coming soon');
@@ -277,8 +319,17 @@ class _DashboardPageState extends State<DashboardPage> {
           const Spacer(),
           const Divider(),
           ListTile(
-            leading: Icon(Icons.logout_rounded, color: Theme.of(context).colorScheme.error),
-            title: Text('Logout', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.error)),
+            leading: Icon(
+              Icons.logout_rounded,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              'Logout',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               AppSnackBar.showInfo(context, 'Logout tapped');

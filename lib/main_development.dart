@@ -5,10 +5,13 @@ import 'package:device_preview/device_preview.dart';
 
 void main() {
   bootstrap(
-    (useCases, hasSeenOnboarding) => DevicePreview(
+    (useCases, authRepository, hasSeenOnboarding) => DevicePreview(
       enabled: false,
-      builder: (context) =>
-          MyApp(useCases: useCases, hasSeenOnboarding: hasSeenOnboarding),
+      builder: (context) => MyApp(
+        useCases: useCases,
+        authRepository: authRepository,
+        hasSeenOnboarding: hasSeenOnboarding,
+      ),
     ),
   );
 }

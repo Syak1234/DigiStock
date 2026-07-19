@@ -16,17 +16,16 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12, left: 16, right: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Theme.of(
               context,
             ).colorScheme.primary.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: Offset(0, 10),
+            blurRadius: 16,
+            offset: Offset(0, 6),
           ),
         ],
       ),
@@ -34,17 +33,17 @@ class ProductCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => context.go('/products/${product.id}'),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: EdgeInsets.all(12.0),
+            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
             child: Row(
               children: [
                 Container(
-                  width: 72,
-                  height: 72,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: PremiumNetworkImage(

@@ -7,7 +7,9 @@ import 'package:product_inventory/features/inventory/data/datasources/hive_inven
 import 'package:product_inventory/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:product_inventory/features/inventory/domain/usecases/inventory_use_cases.dart';
 
-void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, bool hasSeenOnboarding) builder) {
+import 'package:product_inventory/features/auth/data/auth_repository.dart';
+
+void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, AuthRepository authRepository, bool hasSeenOnboarding) builder) {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
@@ -30,6 +32,8 @@ void bootstrap(FutureOr<Widget> Function(InventoryUseCases useCases, bool hasSee
     final repository = InventoryRepositoryImpl(dataSource);
     final useCases = InventoryUseCases(repository);
     
-    runApp(await builder(useCases, hasSeenOnboarding));
+    final authRepository = AuthRepository();
+    
+    runApp(await builder(useCases, authRepository, hasSeenOnboarding));
   }, (error, stackTrace) => log(error.toString(), stackTrace: stackTrace));
 }
