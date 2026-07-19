@@ -11,7 +11,7 @@ Screenshots are stored in [`app_screenshot/`](app_screenshot/) so reviewers can 
 <table>
   <tr>
     <td align="center"><strong>Onboarding 1</strong><br><img src="app_screenshot/onboarding1.png" width="220" alt="DigiStock onboarding first screen"></td>
-    <td align="center"><strong>Onboarding 2</strong><br><img src="app_screenshot/onboarding2.png" width="220" alt="DigiStock onboarding second screen"></td>
+    <td align="center"><strong>Onboarding 2 Page</strong><br><img src="app_screenshot/onboarding2.png" width="220" alt="DigiStock onboarding 2 page"></td>
     <td align="center"><strong>Onboarding 3</strong><br><img src="app_screenshot/onboarding3.png" width="220" alt="DigiStock onboarding third screen"></td>
   </tr>
   <tr>
