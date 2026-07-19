@@ -208,25 +208,6 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                 ),
               ),
             ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.description_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
           ),
           body: BlocConsumer<ProductFormBloc, ProductFormState>(
             listener: (context, state) {
@@ -271,7 +252,7 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                           .animate()
                           .fade(duration: 500.ms)
                           .scale(begin: const Offset(0.95, 0.95)),
-                      const SizedBox(height: 16),
+                      // const SizedBox(height: 5),
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -460,10 +441,11 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Icon(
-                              Icons.stars_rounded,
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 48,
+                            Image.asset(
+                              'assets/images/premium_star_badge.png',
+                              width: 64,
+                              height: 64,
+                              fit: BoxFit.contain,
                             ),
                           ],
                         ),
