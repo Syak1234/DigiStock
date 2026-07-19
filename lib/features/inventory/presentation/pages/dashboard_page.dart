@@ -248,8 +248,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 Expanded(
                   child: BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
-                      final email =
-                          state.userSession?.email ?? 'Guest';
+                      final email = state.userSession?.email ?? 'Guest';
                       final name = email.split('@')[0];
                       final displayName = name.isNotEmpty
                           ? name[0].toUpperCase() + name.substring(1)
@@ -490,14 +489,18 @@ class _DashboardPageState extends State<DashboardPage> {
                         size: 12,
                       ),
                     if (!isAlert) SizedBox(width: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isAlert
-                            ? Theme.of(context).colorScheme.error
-                            : AppTheme.success,
-                        fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isAlert
+                              ? Theme.of(context).colorScheme.error
+                              : AppTheme.success,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -563,7 +566,12 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.only(
+              left: 20,
+              top: 20,
+              bottom: 20,
+              right: 140,
+            ), // Added right padding to avoid overlap
             child: Row(
               children: [
                 Container(
@@ -589,47 +597,59 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
                 SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.arrow_upward_rounded,
-                          color: AppTheme.success,
-                          size: 12,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
                         ),
-                        SizedBox(width: 4),
-                        Text(
-                          subtitle,
+                      ),
+                      SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
                           style: TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.success,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_upward_rounded,
+                            color: AppTheme.success,
+                            size: 12,
+                          ),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.success,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
