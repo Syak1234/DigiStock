@@ -10,16 +10,18 @@ Screenshots are stored in [`app_screenshot/`](app_screenshot/) so reviewers can 
 
 <table>
   <tr>
-    <td align="center"><strong>Onboarding</strong><br><img src="app_screenshot/onboarding1.png" width="220" alt="DigiStock onboarding screen"></td>
-    <td align="center"><strong>Onboarding Details</strong><br><img src="app_screenshot/onboarding2.png" width="220" alt="DigiStock onboarding details screen"></td>
-    <td align="center"><strong>Login</strong><br><img src="app_screenshot/login.png" width="220" alt="DigiStock login screen"></td>
+    <td align="center"><strong>Onboarding 1</strong><br><img src="app_screenshot/onboarding1.png" width="220" alt="DigiStock onboarding first screen"></td>
+    <td align="center"><strong>Onboarding 2</strong><br><img src="app_screenshot/onboarding2.png" width="220" alt="DigiStock onboarding second screen"></td>
+    <td align="center"><strong>Onboarding 3</strong><br><img src="app_screenshot/onboarding3.png" width="220" alt="DigiStock onboarding third screen"></td>
   </tr>
   <tr>
+    <td align="center"><strong>Login</strong><br><img src="app_screenshot/login.png" width="220" alt="DigiStock login screen"></td>
     <td align="center"><strong>Dashboard</strong><br><img src="app_screenshot/dashboard.png" width="220" alt="DigiStock inventory dashboard screen"></td>
     <td align="center"><strong>Product List</strong><br><img src="app_screenshot/productlist.png" width="220" alt="DigiStock product list screen"></td>
-    <td align="center"><strong>Add Product</strong><br><img src="app_screenshot/add_product.png" width="220" alt="DigiStock add product screen"></td>
   </tr>
   <tr>
+    <td align="center"><strong>Add Product</strong><br><img src="app_screenshot/add_product.png" width="220" alt="DigiStock add product screen"></td>
+    <td align="center"><strong>Edit Product</strong><br><img src="app_screenshot/product_edit.png" width="220" alt="DigiStock edit product screen"></td>
     <td align="center"><strong>Product Details</strong><br><img src="app_screenshot/product_details.png" width="220" alt="DigiStock product details screen"></td>
   </tr>
 </table>
@@ -71,7 +73,9 @@ product_inventory/
 │   ├── login.png
 │   ├── onboarding1.png
 │   ├── onboarding2.png
+│   ├── onboarding3.png
 │   ├── product_details.png
+│   ├── product_edit.png
 │   └── productlist.png
 ├── assets/
 │   ├── images/                      # App logo, onboarding art, banners, and UI images
