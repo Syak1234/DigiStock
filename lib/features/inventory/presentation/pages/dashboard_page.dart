@@ -14,6 +14,7 @@ import 'package:product_inventory/core/widgets/premium_card.dart';
 import 'package:product_inventory/core/widgets/premium_icon_button.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:product_inventory/features/auth/presentation/bloc/auth_event.dart';
+import 'package:product_inventory/features/auth/presentation/bloc/auth_state.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -245,29 +246,40 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Admin User',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'admin@example.com',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimary.withValues(alpha: 0.8),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  child: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final email =
+                          state.userSession?['email'] as String? ?? 'Guest';
+                      final name = email.split('@')[0];
+                      final displayName = name.isNotEmpty
+                          ? name[0].toUpperCase() + name.substring(1)
+                          : 'User';
+
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayName,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            email,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimary.withValues(alpha: 0.8),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ],

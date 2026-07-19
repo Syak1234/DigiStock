@@ -86,7 +86,6 @@ class _LoginPageState extends State<LoginPage> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF5D5FEF),
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
@@ -98,10 +97,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.inventory_2_rounded,
-                        color: Colors.white,
-                        size: 26,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.asset(
+                          'assets/images/app_logo.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ).animate().scale(
                       delay: 100.ms,
@@ -111,30 +112,24 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 14),
                     // "Welcome to"
                     const Text(
-                          'Welcome to',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1A1A2E),
-                            height: 1.1,
-                          ),
-                        )
-                        .animate()
-                        .fade(delay: 200.ms)
-                        .slideY(begin: 0.2, end: 0),
+                      'Welcome to',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1A1A2E),
+                        height: 1.1,
+                      ),
+                    ).animate().fade(delay: 200.ms).slideY(begin: 0.2, end: 0),
                     // "DigiStock"
                     const Text(
-                          'DigiStock',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF4F46E5),
-                            height: 1.1,
-                          ),
-                        )
-                        .animate()
-                        .fade(delay: 250.ms)
-                        .slideY(begin: 0.2, end: 0),
+                      'DigiStock',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF4F46E5),
+                        height: 1.1,
+                      ),
+                    ).animate().fade(delay: 250.ms).slideY(begin: 0.2, end: 0),
                     const SizedBox(height: 4),
                     const Text(
                       'Your smart inventory\ndashboard',
@@ -293,14 +288,14 @@ class _LoginPageState extends State<LoginPage> {
                             children: [
                               Expanded(
                                 child: _socialButton(
-                                  'Continue with Google',
+                                  'Google',
                                   _googleIcon(),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: _socialButton(
-                                  'Continue with Apple',
+                                  'Apple',
                                   _appleIcon(),
                                 ),
                               ),
@@ -313,10 +308,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           // Security note
                           Padding(
-                            padding: const EdgeInsets.only(
-                              top: 4,
-                              bottom: 4,
-                            ),
+                            padding: const EdgeInsets.only(top: 4, bottom: 4),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -687,60 +679,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _googleIcon() {
-    return Container(
+    return Image.asset(
+      'assets/images/google_logo.png',
       width: 20,
       height: 20,
-      decoration: const BoxDecoration(shape: BoxShape.circle),
-      child: CustomPaint(painter: _GoogleIconPainter()),
     );
   }
 
   Widget _appleIcon() {
     return const Icon(Icons.apple_rounded, size: 20, color: Colors.black);
   }
-}
-
-// Simple Google "G" icon painter
-class _GoogleIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
-
-    // Draw the four colored quadrants
-    final colors = [
-      const Color(0xFF4285F4), // blue - top right
-      const Color(0xFF34A853), // green - bottom right
-      const Color(0xFFFBBC05), // yellow - bottom left
-      const Color(0xFFEA4335), // red - top left
-    ];
-    for (int i = 0; i < 4; i++) {
-      paint.color = colors[i];
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        i * (3.14159 / 2) - 3.14159 / 4,
-        3.14159 / 2,
-        true,
-        paint,
-      );
-    }
-    // White center
-    paint.color = Colors.white;
-    canvas.drawCircle(center, radius * 0.55, paint);
-    // G letter approximation
-    paint.color = const Color(0xFF4285F4);
-    paint.strokeWidth = 2;
-    paint.style = PaintingStyle.stroke;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius * 0.45),
-      -0.3,
-      -5.0,
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

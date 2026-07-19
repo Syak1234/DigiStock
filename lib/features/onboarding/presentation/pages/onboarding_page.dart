@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:product_inventory/core/widgets/premium_button.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -24,7 +25,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final settingsBox = Hive.box('settings_box');
     await settingsBox.put('has_seen_onboarding', true);
     if (mounted) {
-      context.go('/');
+      context.go('/login');
     }
   }
 
@@ -91,9 +92,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 top: 16.0,
               ),
               child: Row(
-                mainAxisAlignment: _currentPage == 2
-                    ? MainAxisAlignment.spaceBetween
-                    : MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: List.generate(
@@ -114,29 +113,23 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                     ),
                   ),
-                  if (_currentPage == 2)
-                    ElevatedButton(
-                      onPressed: _completeOnboarding,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Get Started'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 18),
-                        ],
-                      ),
-                    ).animate().fade().slideX(begin: 0.2, end: 0),
+                  SizedBox(
+                    width: 150,
+                    child: PremiumButton(
+                      label: _currentPage == 2 ? 'Get Started' : 'Next',
+                      icon: Icons.arrow_forward,
+                      onPressed: () {
+                        if (_currentPage == 2) {
+                          _completeOnboarding();
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                    ),
+                  ).animate().fade().slideX(begin: 0.2, end: 0),
                 ],
               ),
             ),
