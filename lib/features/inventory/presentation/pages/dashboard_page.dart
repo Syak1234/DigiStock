@@ -12,6 +12,8 @@ import 'package:product_inventory/core/widgets/premium_empty_state.dart';
 import 'package:product_inventory/core/utils/app_snackbar.dart';
 import 'package:product_inventory/core/widgets/premium_card.dart';
 import 'package:product_inventory/core/widgets/premium_icon_button.dart';
+import 'package:product_inventory/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:product_inventory/features/auth/presentation/bloc/auth_event.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -332,7 +334,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
             onTap: () {
               Navigator.pop(context);
-              AppSnackBar.showInfo(context, 'Logout tapped');
+              context.read<AuthBloc>().add(LogoutRequestedEvent());
             },
           ),
           const SizedBox(height: 24),

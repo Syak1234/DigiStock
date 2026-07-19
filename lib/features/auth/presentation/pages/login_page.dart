@@ -73,274 +73,273 @@ class _LoginPageState extends State<LoginPage> {
                 ).animate().fade(delay: 150.ms, duration: 600.ms),
               ),
 
-              // ── FOREGROUND CONTENT ─────────────────────────────────
-              SafeArea(
-                bottom: false,
+              // ── TOP FOREGROUND TEXT ─────────────────────────────────
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 12,
+                left: 20,
+                right: 20,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // App icon + text top-left
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, top: 12),
+                    // App logo
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF5D5FEF),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF5D5FEF,
+                            ).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.inventory_2_rounded,
+                        color: Colors.white,
+                        size: 26,
+                      ),
+                    ).animate().scale(
+                      delay: 100.ms,
+                      duration: 500.ms,
+                      curve: Curves.easeOutBack,
+                    ),
+                    const SizedBox(height: 14),
+                    // "Welcome to"
+                    const Text(
+                          'Welcome to',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A1A2E),
+                            height: 1.1,
+                          ),
+                        )
+                        .animate()
+                        .fade(delay: 200.ms)
+                        .slideY(begin: 0.2, end: 0),
+                    // "DigiStock"
+                    const Text(
+                          'DigiStock',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF4F46E5),
+                            height: 1.1,
+                          ),
+                        )
+                        .animate()
+                        .fade(delay: 250.ms)
+                        .slideY(begin: 0.2, end: 0),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Your smart inventory\ndashboard',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF6B7280),
+                        height: 1.4,
+                      ),
+                    ).animate().fade(delay: 300.ms),
+                  ],
+                ),
+              ),
+
+              // ── BOTTOM FORM SHEET ────────────────────────────────
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: MediaQuery.of(context).size.height * 0.65,
+                child: SafeArea(
+                  top: false,
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 24,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0x144F46E5),
+                          blurRadius: 24,
+                          offset: const Offset(0, -8),
+                        ),
+                        BoxShadow(
+                          color: const Color(0x0A4F46E5),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // App logo
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF5D5FEF),
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF5D5FEF,
-                                  ).withValues(alpha: 0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                          // "Welcome Back 👋"
+                          const Text(
+                            'Welcome Back 👋',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1A1A2E),
+                            ),
+                          ).animate().fade(delay: 350.ms),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Sign in to continue to your account',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF9CA3AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ).animate().fade(delay: 400.ms),
+                          const SizedBox(height: 24),
+
+                          // Email label + field
+                          _fieldLabel('Email Address'),
+                          const SizedBox(height: 6),
+                          _emailField()
+                              .animate()
+                              .fade(delay: 450.ms)
+                              .slideX(begin: 0.05, end: 0),
+                          const SizedBox(height: 16),
+
+                          // Password label + field
+                          _fieldLabel('Password'),
+                          const SizedBox(height: 6),
+                          _passwordField()
+                              .animate()
+                              .fade(delay: 500.ms)
+                              .slideX(begin: 0.05, end: 0),
+
+                          // Forgot password
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () => AppSnackBar.showInfo(
+                                context,
+                                'Password reset coming soon',
+                              ),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 0,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: const Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  color: Color(0xFF4F46E5),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ).animate().fade(delay: 550.ms),
+
+                          // Continue button
+                          BlocBuilder<AuthBloc, AuthState>(
+                            buildWhen: (p, c) => p.status != c.status,
+                            builder: (context, state) {
+                              final isLoading =
+                                  state.status == AuthStatus.loading;
+                              return _continueButton(isLoading);
+                            },
+                          ).animate().fade(delay: 600.ms),
+                          const SizedBox(height: 16),
+
+                          // Demo account card
+                          _demoCard().animate().fade(delay: 650.ms),
+                          const SizedBox(height: 16),
+
+                          // OR divider
+                          Row(
+                            children: [
+                              const Expanded(
+                                child: Divider(color: Color(0xFFE5E7EB)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Text(
+                                  'OR',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const Expanded(
+                                child: Divider(color: Color(0xFFE5E7EB)),
+                              ),
+                            ],
+                          ).animate().fade(delay: 700.ms),
+                          const SizedBox(height: 14),
+
+                          // Social buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _socialButton(
+                                  'Continue with Google',
+                                  _googleIcon(),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _socialButton(
+                                  'Continue with Apple',
+                                  _appleIcon(),
+                                ),
+                              ),
+                            ],
+                          ).animate().fade(delay: 720.ms),
+                          const SizedBox(height: 12),
+
+                          // Guest
+                          _guestButton().animate().fade(delay: 740.ms),
+
+                          // Security note
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 4,
+                              bottom: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.shield_outlined,
+                                  size: 13,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'Your data is 100% secure and private',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade400,
+                                  ),
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                              Icons.inventory_2_rounded,
-                              color: Colors.white,
-                              size: 26,
-                            ),
-                          ).animate().scale(
-                            delay: 100.ms,
-                            duration: 500.ms,
-                            curve: Curves.easeOutBack,
-                          ),
-                          const SizedBox(height: 14),
-                          // "Welcome to"
-                          const Text(
-                                'Welcome to',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF1A1A2E),
-                                  height: 1.1,
-                                ),
-                              )
-                              .animate()
-                              .fade(delay: 200.ms)
-                              .slideY(begin: 0.2, end: 0),
-                          // "DigiStock"
-                          const Text(
-                                'DigiStock',
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF4F46E5),
-                                  height: 1.1,
-                                ),
-                              )
-                              .animate()
-                              .fade(delay: 250.ms)
-                              .slideY(begin: 0.2, end: 0),
-                          const SizedBox(height: 4),
-                          const Text(
-                            'Your smart inventory\ndashboard',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF6B7280),
-                              height: 1.4,
-                            ),
-                          ).animate().fade(delay: 300.ms),
+                          ).animate().fade(delay: 760.ms),
                         ],
                       ),
                     ),
-
-                    // ── BOTTOM FORM SHEET ────────────────────────────────
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                          left: 16,
-                          right: 16,
-                          bottom: 24,
-                          top: 0,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(32),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0x144F46E5),
-                              blurRadius: 24,
-                              offset: const Offset(0, -8),
-                            ),
-                            BoxShadow(
-                              color: const Color(0x0A4F46E5),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // "Welcome Back 👋"
-                              const Text(
-                                'Welcome Back 👋',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF1A1A2E),
-                                ),
-                              ).animate().fade(delay: 350.ms),
-                              const SizedBox(height: 4),
-                              const Text(
-                                'Sign in to continue to your account',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF9CA3AF),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ).animate().fade(delay: 400.ms),
-                              const SizedBox(height: 24),
-
-                              // Email label + field
-                              _fieldLabel('Email Address'),
-                              const SizedBox(height: 6),
-                              _emailField()
-                                  .animate()
-                                  .fade(delay: 450.ms)
-                                  .slideX(begin: 0.05, end: 0),
-                              const SizedBox(height: 16),
-
-                              // Password label + field
-                              _fieldLabel('Password'),
-                              const SizedBox(height: 6),
-                              _passwordField()
-                                  .animate()
-                                  .fade(delay: 500.ms)
-                                  .slideX(begin: 0.05, end: 0),
-
-                              // Forgot password
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () => AppSnackBar.showInfo(
-                                    context,
-                                    'Password reset coming soon',
-                                  ),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 0,
-                                      vertical: 8,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Forgot Password?',
-                                    style: TextStyle(
-                                      color: Color(0xFF4F46E5),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ).animate().fade(delay: 550.ms),
-
-                              // Continue button
-                              BlocBuilder<AuthBloc, AuthState>(
-                                buildWhen: (p, c) => p.status != c.status,
-                                builder: (context, state) {
-                                  final isLoading =
-                                      state.status == AuthStatus.loading;
-                                  return _continueButton(isLoading);
-                                },
-                              ).animate().fade(delay: 600.ms),
-                              const SizedBox(height: 16),
-
-                              // Demo account card
-                              _demoCard().animate().fade(delay: 650.ms),
-                              const SizedBox(height: 16),
-
-                              // OR divider
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Divider(color: Color(0xFFE5E7EB)),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    child: Text(
-                                      'OR',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  const Expanded(
-                                    child: Divider(color: Color(0xFFE5E7EB)),
-                                  ),
-                                ],
-                              ).animate().fade(delay: 700.ms),
-                              const SizedBox(height: 14),
-
-                              // Social buttons
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _socialButton(
-                                      'Continue with Google',
-                                      _googleIcon(),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _socialButton(
-                                      'Continue with Apple',
-                                      _appleIcon(),
-                                    ),
-                                  ),
-                                ],
-                              ).animate().fade(delay: 720.ms),
-                              const SizedBox(height: 12),
-
-                              // Guest
-                              _guestButton().animate().fade(delay: 740.ms),
-
-                              // Security note
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 4,
-                                  bottom: 4,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.shield_outlined,
-                                      size: 13,
-                                      color: Colors.grey.shade400,
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'Your data is 100% secure and private',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade400,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ).animate().fade(delay: 760.ms),
-                            ],
-                          ),
-                        ),
-                      ), // Container
-                    ), // Flexible
-                  ],
+                  ),
                 ),
               ),
             ],

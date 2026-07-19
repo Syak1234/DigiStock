@@ -44,8 +44,8 @@ class AppRouter {
         final isOnboarding = state.uri.toString() == '/onboarding';
 
         if (!hasSeenOnboarding && !isOnboarding) return '/onboarding';
-        if (hasSeenOnboarding && !isAuth && !isLoggingIn) return '/login';
-        if (isAuth && isLoggingIn) return '/';
+        if (hasSeenOnboarding && !isAuth && !isLoggingIn && !isOnboarding) return '/onboarding';
+        if (isAuth && (isLoggingIn || isOnboarding)) return '/';
 
         return null;
       },
