@@ -17,7 +17,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController(text: 'admin@digistock.com');
   final _passwordController = TextEditingController(text: 'admin123');
-  bool _obscurePassword = true;
+  final _obscurePasswordNotifier = ValueNotifier<bool>(true);
 
   static final _demoEmail = 'admin@digistock.com';
   static final _demoPassword = 'admin123';
@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _obscurePasswordNotifier.dispose();
     super.dispose();
   }
 
@@ -42,8 +43,8 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // Transparent is a semantic alpha, acceptable.
         statusBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
@@ -155,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     margin: EdgeInsets.only(left: 16, right: 16, bottom: 24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
@@ -274,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                                 child: Text(
                                   'OR',
                                   style: TextStyle(
-                                    color: Colors.grey.shade400,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -317,14 +318,14 @@ class _LoginPageState extends State<LoginPage> {
                                 Icon(
                                   Icons.shield_outlined,
                                   size: 13,
-                                  color: Colors.grey.shade400,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 SizedBox(width: 5),
                                 Text(
                                   'Your data is 100% secure and private',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Colors.grey.shade400,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               ],
@@ -374,14 +375,14 @@ class _LoginPageState extends State<LoginPage> {
         ),
         decoration: InputDecoration(
           hintText: 'Enter your email',
-          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+          hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
           prefixIcon: Padding(
             padding: EdgeInsets.all(8),
             child: Container(
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -408,47 +409,51 @@ class _LoginPageState extends State<LoginPage> {
           width: 1.5,
         ),
       ),
-      child: TextField(
-        controller: _passwordController,
-        obscureText: _obscurePassword,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-        decoration: InputDecoration(
-          hintText: 'Enter your password',
-          hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-          prefixIcon: Padding(
-            padding: EdgeInsets.all(8),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                Icons.lock_outline_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 18,
-              ),
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _obscurePasswordNotifier,
+        builder: (context, obscure, child) {
+          return TextField(
+            controller: _passwordController,
+            obscureText: obscure,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(
-              _obscurePassword
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined,
-              color: Theme.of(context).colorScheme.primary,
-              size: 20,
+            decoration: InputDecoration(
+              hintText: 'Enter your password',
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14),
+              prefixIcon: Padding(
+                padding: EdgeInsets.all(8),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.lock_outline_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
+                  ),
+                ),
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  obscure
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                onPressed: () => _obscurePasswordNotifier.value = !obscure,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
-            onPressed: () =>
-                setState(() => _obscurePassword = !_obscurePassword),
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
+          );
+        },
       ),
     );
   }
@@ -481,7 +486,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 22,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
                   ),
                 ),
               )
@@ -491,7 +496,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     'Continue',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -499,7 +504,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(width: 10),
                   Icon(
                     Icons.arrow_forward_rounded,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                     size: 20,
                   ),
                 ],
@@ -557,7 +562,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
@@ -639,7 +644,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: Theme.of(
@@ -678,7 +683,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Container(
         height: 48,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: Theme.of(context).colorScheme.outlineVariant,
@@ -711,6 +716,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _appleIcon() {
-    return Icon(Icons.apple_rounded, size: 20, color: Colors.black);
+    return Icon(Icons.apple_rounded, size: 20, color: Theme.of(context).colorScheme.onSurface);
   }
 }

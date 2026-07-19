@@ -45,7 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
           );
         },
         child: SingleChildScrollView(
-          padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 120),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 10),
           physics: AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,7 +664,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.shadow.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: Offset(0, 4),
                   ),
@@ -779,9 +781,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.04,
-                                      ),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .shadow
+                                          .withValues(alpha: 0.04),
                                       blurRadius: 6,
                                       offset: Offset(0, 2),
                                     ),
@@ -894,7 +897,7 @@ class HeroCarousel extends StatefulWidget {
 
 class _HeroCarouselState extends State<HeroCarousel> {
   final PageController _controller = PageController();
-  int _currentIndex = 0;
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
   Timer? _timer;
 
   @override
@@ -906,7 +909,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
   void _startTimer() {
     _timer = Timer.periodic(Duration(seconds: 4), (timer) {
       if (_controller.hasClients) {
-        final nextPage = (_currentIndex + 1) % 2; // 2 slides
+        final nextPage = (_currentIndex.value + 1) % 2; // 2 slides
         _controller.animateToPage(
           nextPage,
           duration: Duration(milliseconds: 800),
@@ -920,6 +923,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _currentIndex.dispose();
     super.dispose();
   }
 
@@ -937,9 +941,7 @@ class _HeroCarouselState extends State<HeroCarousel> {
           PageView(
             controller: _controller,
             onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+              _currentIndex.value = index;
             },
             children: [
               _buildSlide(
@@ -958,23 +960,28 @@ class _HeroCarouselState extends State<HeroCarousel> {
             bottom: 16,
             left: 0,
             right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                2,
-                (index) => AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentIndex == index ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _currentIndex == index
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
+            child: ValueListenableBuilder<int>(
+              valueListenable: _currentIndex,
+              builder: (context, currentIndex, child) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    2,
+                    (index) => AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      width: currentIndex == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: currentIndex == index
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],

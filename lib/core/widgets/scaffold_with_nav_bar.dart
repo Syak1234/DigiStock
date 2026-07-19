@@ -47,7 +47,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           elevation: 0,
           highlightElevation: 0,
           shape: const CircleBorder(),
-          child: const Icon(Icons.add_rounded, color: Colors.white, size: 32)
+          child: Icon(Icons.add_rounded, color: Theme.of(context).colorScheme.onPrimary, size: 32)
               .animate(onPlay: (controller) => controller.repeat(reverse: true))
               .scale(
                 begin: const Offset(1, 1),

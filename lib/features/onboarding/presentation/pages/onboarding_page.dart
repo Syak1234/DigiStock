@@ -13,11 +13,12 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
-  int _currentPage = 0;
+  final ValueNotifier<int> _currentPage = ValueNotifier<int>(0);
 
   @override
   void dispose() {
     _pageController.dispose();
+    _currentPage.dispose();
     super.dispose();
   }
 
@@ -32,7 +33,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -40,9 +41,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               child: PageView(
                 controller: _pageController,
                 onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
+                  _currentPage.value = index;
                 },
                 children: [
                   _OnboardingPageContent(
@@ -91,46 +90,51 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 bottom: 40.0,
                 top: 16.0,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: List.generate(
-                      3,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 8,
-                        width: _currentPage == index ? 24 : 8,
-                        decoration: BoxDecoration(
-                          color: _currentPage == index
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(
-                                  context,
-                                ).colorScheme.primary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(4),
+              child: ValueListenableBuilder<int>(
+                valueListenable: _currentPage,
+                builder: (context, currentPage, child) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: List.generate(
+                          3,
+                          (index) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            height: 8,
+                            width: currentPage == index ? 24 : 8,
+                            decoration: BoxDecoration(
+                              color: currentPage == index
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 150,
-                    child: PremiumButton(
-                      label: _currentPage == 2 ? 'Get Started' : 'Next',
-                      icon: Icons.arrow_forward,
-                      onPressed: () {
-                        if (_currentPage == 2) {
-                          _completeOnboarding();
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                    ),
-                  ).animate().fade().slideX(begin: 0.2, end: 0),
-                ],
+                      SizedBox(
+                        width: 150,
+                        child: PremiumButton(
+                          label: currentPage == 2 ? 'Get Started' : 'Next',
+                          icon: Icons.arrow_forward,
+                          onPressed: () {
+                            if (currentPage == 2) {
+                              _completeOnboarding();
+                            } else {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                      ).animate().fade().slideX(begin: 0.2, end: 0),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -173,7 +177,7 @@ class _OnboardingPageContent extends StatelessWidget {
             text: TextSpan(
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.2,
               ),
               children: [
@@ -192,7 +196,7 @@ class _OnboardingPageContent extends StatelessWidget {
           Text(
                 subtitle,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.black54,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
               )
@@ -212,7 +216,7 @@ class _OnboardingPageContent extends StatelessWidget {
           Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -223,7 +227,7 @@ class _OnboardingPageContent extends StatelessWidget {
                       offset: const Offset(0, 10),
                     ),
                   ],
-                  border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
@@ -251,14 +255,14 @@ class _OnboardingPageContent extends StatelessWidget {
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black87,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             cardSubtitle,
                             style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.black54, height: 1.3),
+                                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.3),
                           ),
                         ],
                       ),

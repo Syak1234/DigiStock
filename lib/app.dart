@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:product_inventory/features/auth/domain/repositories/auth_repository.dart';
+
 import 'package:product_inventory/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:product_inventory/core/router/app_router.dart';
 import 'package:product_inventory/core/theme/app_theme.dart';

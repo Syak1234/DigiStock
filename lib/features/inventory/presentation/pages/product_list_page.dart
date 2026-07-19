@@ -271,8 +271,8 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   void _showFilterBottomSheet(BuildContext context, InventoryState state) {
-    String? currentSortBy = state.sortBy;
-    bool currentLowStockOnly = state.lowStockOnly;
+    final currentSortBy = ValueNotifier<String?>(state.sortBy);
+    final currentLowStockOnly = ValueNotifier<bool>(state.lowStockOnly);
 
     showModalBottomSheet(
       context: context,
@@ -282,8 +282,9 @@ class _ProductListPageState extends State<ProductListPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (BuildContext bottomSheetContext) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+        return AnimatedBuilder(
+          animation: Listenable.merge([currentSortBy, currentLowStockOnly]),
+          builder: (BuildContext context, Widget? child) {
             return SafeArea(
               child: SingleChildScrollView(
                 padding: EdgeInsets.only(
@@ -334,33 +335,33 @@ class _ProductListPageState extends State<ProductListPage> {
                         _buildSortChip(
                           'Price (Low to High)',
                           'price_asc',
-                          currentSortBy,
+                          currentSortBy.value,
                           (val) {
-                            setState(() => currentSortBy = val);
+                            currentSortBy.value = val;
                           },
                         ),
                         _buildSortChip(
                           'Price (High to Low)',
                           'price_desc',
-                          currentSortBy,
+                          currentSortBy.value,
                           (val) {
-                            setState(() => currentSortBy = val);
+                            currentSortBy.value = val;
                           },
                         ),
                         _buildSortChip(
                           'Name (A-Z)',
                           'name_asc',
-                          currentSortBy,
+                          currentSortBy.value,
                           (val) {
-                            setState(() => currentSortBy = val);
+                            currentSortBy.value = val;
                           },
                         ),
                         _buildSortChip(
                           'Name (Z-A)',
                           'name_desc',
-                          currentSortBy,
+                          currentSortBy.value,
                           (val) {
-                            setState(() => currentSortBy = val);
+                            currentSortBy.value = val;
                           },
                         ),
                       ],
@@ -387,14 +388,12 @@ class _ProductListPageState extends State<ProductListPage> {
                           ),
                         ),
                         Switch(
-                          value: currentLowStockOnly,
+                          value: currentLowStockOnly.value,
                           activeThumbColor: Theme.of(
                             context,
                           ).colorScheme.primary,
                           onChanged: (val) {
-                            setState(() {
-                              currentLowStockOnly = val;
-                            });
+                            currentLowStockOnly.value = val;
                           },
                         ),
                       ],
@@ -409,8 +408,8 @@ class _ProductListPageState extends State<ProductListPage> {
                           this.context.read<InventoryBloc>().add(
                             LoadInventoryEvent(
                               isRefresh: true,
-                              sortBy: currentSortBy,
-                              lowStockOnly: currentLowStockOnly,
+                              sortBy: currentSortBy.value,
+                              lowStockOnly: currentLowStockOnly.value,
                             ),
                           );
                         },

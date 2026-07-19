@@ -45,7 +45,7 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
   late TextEditingController _categoryController;
   late TextEditingController _imageUrlController;
   Product? _existingProduct;
-  bool _isLoading = true;
+  final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(true);
 
   @override
   void initState() {
@@ -73,9 +73,7 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
         _imageUrlController.text = product.imageUrl;
       }
     }
-    setState(() {
-      _isLoading = false;
-    });
+    _isLoading.value = false;
     if (mounted) {
       context.read<ProductFormBloc>().add(InitializeProductForm(product: _existingProduct));
     }
@@ -88,7 +86,9 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
     _priceController.dispose();
     _stockController.dispose();
     _categoryController.dispose();
+    _categoryController.dispose();
     _imageUrlController.dispose();
+    _isLoading.dispose();
     super.dispose();
   }
 
@@ -113,37 +113,40 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
     final isEditing = widget.productId != null;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Edit Product' : 'Add Product'),
-      ),
-      body: BlocConsumer<ProductFormBloc, ProductFormState>(
-        listener: (context, state) {
-          if (state.status == ProductFormStatus.success) {
-            AppSnackBar.showSuccess(context, isEditing ? 'Product updated successfully!' : 'Product added successfully!');
-            context.read<InventoryBloc>().add(const LoadInventoryEvent(isRefresh: true));
-            if (isEditing) {
-              context.go('/products/${widget.productId}');
-            } else {
-              context.go('/products');
-            }
-          } else if (state.status == ProductFormStatus.failure) {
-            AppSnackBar.showError(context, state.errorMessage ?? 'An error occurred');
-          }
-        },
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isLoading,
+      builder: (context, isLoading, child) {
+        if (isLoading) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(isEditing ? 'Edit Product' : 'Add Product'),
+          ),
+          body: BlocConsumer<ProductFormBloc, ProductFormState>(
+            listener: (context, state) {
+              if (state.status == ProductFormStatus.success) {
+                AppSnackBar.showSuccess(context, isEditing ? 'Product updated successfully!' : 'Product added successfully!');
+                context.read<InventoryBloc>().add(const LoadInventoryEvent(isRefresh: true));
+                if (isEditing) {
+                  context.go('/products/${widget.productId}');
+                } else {
+                  context.go('/products');
+                }
+              } else if (state.status == ProductFormStatus.failure) {
+                AppSnackBar.showError(context, state.errorMessage ?? 'An error occurred');
+              }
+            },
+            builder: (context, state) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(24),
@@ -210,8 +213,10 @@ class _AddEditProductViewState extends State<_AddEditProductView> {
               ),
             ),
           );
-        },
-      ),
+            },
+          ),
+        );
+      },
     );
   }
 }

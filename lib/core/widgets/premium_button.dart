@@ -72,10 +72,10 @@ class PremiumButton extends StatelessWidget {
           ),
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(strokeWidth: 2, color: theme.colorScheme.onPrimary),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,

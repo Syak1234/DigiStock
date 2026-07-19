@@ -39,13 +39,13 @@ class AppSnackBar {
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 20),
+            Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
